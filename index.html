@@ -51,7 +51,7 @@
 
         * { 
             margin: 0; padding: 0; box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; /* Removes blue tap flash on mobile */
+            -webkit-tap-highlight-color: transparent; 
         }
         
         body {
@@ -198,7 +198,6 @@
             display: flex; align-items: center; justify-content: center; border-radius: 50%;
         }
 
-        /* Pulse Animation when running */
         @keyframes ringPulse {
             0% { filter: drop-shadow(0 0 0 rgba(13, 148, 136, 0)); }
             50% { filter: drop-shadow(0 0 15px rgba(13, 148, 136, 0.4)); }
@@ -218,21 +217,15 @@
             transform: rotate(-90deg); overflow: visible;
         }
 
-        /* Thick Background Track */
         .pomo-ring-bg-new {
             fill: none; stroke: var(--bg-body); stroke-width: 18px;
             transition: stroke var(--transition-speed) ease;
         }
-        [data-theme="dark"] .pomo-ring-bg-new {
-            stroke: rgba(255, 255, 255, 0.04);
-        }
+        [data-theme="dark"] .pomo-ring-bg-new { stroke: rgba(255, 255, 255, 0.04); }
 
-        /* Thick Progress Track */
         .pomo-ring-progress-new {
             fill: none; stroke: var(--primary); stroke-width: 18px;
-            stroke-linecap: round;
-            stroke-dasharray: 753.98; /* 2 * pi * 120 */
-            stroke-dashoffset: 0;
+            stroke-linecap: round; stroke-dasharray: 753.98; stroke-dashoffset: 0;
             transition: stroke-dashoffset 0.25s linear, stroke 0.4s ease;
         }
 
@@ -242,13 +235,8 @@
             transition: color var(--transition-speed) ease;
         }
 
-        .pomo-controls-new {
-            display: flex; gap: 4rem; align-items: center; justify-content: center; width: 100%;
-        }
-
-        .control-group {
-            display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
-        }
+        .pomo-controls-new { display: flex; gap: 4rem; align-items: center; justify-content: center; width: 100%; }
+        .control-group { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
 
         .pomo-circle-btn {
             width: 70px; height: 70px; border-radius: 50%; border: none; outline: none;
@@ -256,12 +244,8 @@
             display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
             cursor: pointer; transition: all 0.3s var(--spring-curve);
         }
-        .pomo-circle-btn:hover {
-            transform: scale(1.08); background: rgba(13, 148, 136, 0.15);
-        }
-        .pomo-circle-btn:active {
-            transform: scale(0.9);
-        }
+        .pomo-circle-btn:hover { transform: scale(1.08); background: rgba(13, 148, 136, 0.15); }
+        .pomo-circle-btn:active { transform: scale(0.9); }
         
         [data-theme="dark"] .pomo-circle-btn { background: rgba(20, 184, 166, 0.1); color: var(--primary); }
         [data-theme="dark"] .pomo-circle-btn:hover { background: rgba(20, 184, 166, 0.2); }
@@ -271,7 +255,6 @@
             transition: color var(--transition-speed) ease;
         }
 
-        /* Dynamic Break Theme overrides for UI matching */
         .pomodoro-box-new.break-mode .pomo-ring-progress-new { stroke: var(--success); }
         .pomodoro-box-new.break-mode .pomo-circle-btn { color: var(--success); background: rgba(16, 185, 129, 0.1); }
         .pomodoro-box-new.break-mode .pomo-circle-btn:hover { background: rgba(16, 185, 129, 0.2); }
@@ -337,7 +320,6 @@
             .edit-controls { justify-content: flex-end; width: 100%; }
             .btn-save, .btn-cancel { flex: 1; text-align: center; }
             
-            /* Compact Single-View Pomodoro Mobile Fixes */
             .pomodoro-box-new { padding: 1.5rem 1rem; box-shadow: none; border: none; background: transparent; max-width: 100%; }
             .pomo-subtitle { margin-bottom: 1.5rem; }
             .pomo-timer-wrapper-new { width: 250px; height: 250px; margin-bottom: 2.5rem; }
@@ -347,12 +329,14 @@
 
             .growth-header { margin-bottom: 1.5rem; width: 100%; }
             .growth-header h2 { font-size: 1.5rem; }
-            
             .growth-grid { display: flex; flex-direction: column; gap: 1.25rem; width: 100%; }
             .growth-card { padding: 1.25rem; width: 100%; box-sizing: border-box; }
-            
             .chart-container-circle { height: 200px; width: 100%; }
             .chart-container { height: 200px; width: 100%; }
+            
+            #toast-container { top: 20px; left: 50%; transform: translateX(-50%); right: auto; width: 90%; align-items: center; }
+            .toast { width: 100%; transform: translateY(-120%); } 
+            .toast.show { transform: translateY(0); }
         }
 
         /* =========================================
@@ -396,16 +380,55 @@
         .settings-input { padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-size: 1rem; transition: border-color 0.3s; }
         .settings-input:focus { border-color: var(--primary); }
         .setting-btn { padding: 0.75rem 1rem; border-radius: 8px; background: var(--bg-body); border: 1px solid var(--border); color: var(--text-main); cursor: pointer; transition: all 0.2s var(--smooth-curve); text-align: left; display: flex; align-items: center; gap: 0.75rem; font-weight: 500; font-size: 1rem;}
-        .setting-btn:hover { background: var(--border); transform: translateX(4px); }
-        .setting-btn:active { transform: scale(0.95); }
+        .setting-btn.disabled { opacity: 0.5; cursor: not-allowed; background: var(--bg-body) !important; border-color: var(--border) !important; transform: none !important;}
+        .setting-btn:not(.disabled):hover { background: var(--border); transform: translateX(4px); }
+        .setting-btn:not(.disabled):active { transform: scale(0.95); }
         .setting-btn.danger { color: var(--danger); }
-        .setting-btn.danger:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); }
+        .setting-btn.danger:not(.disabled):hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); }
         .settings-footer { padding: 1.5rem 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
+        
+        /* =========================================
+           CUSTOM TOAST NOTIFICATIONS & MODALS
+           ========================================= */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 100000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: var(--bg-surface); color: var(--text-main); padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 12px; font-weight: 500; transform: translateX(120%); transition: transform 0.4s var(--spring-curve), opacity 0.4s ease; opacity: 0; pointer-events: auto; }
+        .toast.show { transform: translateX(0); opacity: 1; }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.success { border-left-color: var(--success); }
+        .toast i { font-size: 1.3rem; }
+
+        #confirm-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 100001; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        #confirm-overlay.show { opacity: 1; pointer-events: auto; }
+        .confirm-box { background: var(--bg-surface); padding: 2.5rem 2rem; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s var(--spring-curve); border: 1px solid var(--border); }
+        #confirm-overlay.show .confirm-box { transform: scale(1); }
+        .confirm-icon { font-size: 3rem; color: var(--danger); margin-bottom: 1rem; }
+        .confirm-msg { font-size: 1.1rem; color: var(--text-main); margin-bottom: 2rem; line-height: 1.5; font-weight: 500;}
+        .confirm-actions { display: flex; gap: 1rem; justify-content: center; }
+        .confirm-btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s var(--spring-curve); border: none; font-size: 1rem; flex: 1;}
+        .btn-yes { background: var(--danger); color: white; }
+        .btn-yes:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);}
+        .btn-yes:active { transform: scale(0.95); }
+        .btn-no { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); }
+        .btn-no:hover { background: var(--border); transform: translateY(-2px); }
+        .btn-no:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
     <div id="theme-wipe"></div>
+    <div id="toast-container"></div>
+
+    <!-- CUSTOM CONFIRM MODAL -->
+    <div id="confirm-overlay">
+        <div class="confirm-box">
+            <i class="fa-solid fa-triangle-exclamation confirm-icon"></i>
+            <div class="confirm-msg" id="confirm-msg">Are you sure?</div>
+            <div class="confirm-actions">
+                <button class="confirm-btn btn-no" onclick="closeConfirm()">Cancel</button>
+                <button class="confirm-btn btn-yes" onclick="executeConfirm()">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
 
     <!-- RESTRICTED LOGIN SCREEN -->
     <div id="auth-overlay">
@@ -455,9 +478,10 @@
                 </form>
             </div>
             <div class="settings-section">
-                <h3>Data Management</h3>
-                <p class="settings-desc">Export a copy of your tasks and focus statistics.</p>
-                <button class="setting-btn" onclick="downloadData()"><i class="fa-solid fa-download"></i> Download Local Data</button>
+                <h3>Monthly Data Report</h3>
+                <p class="settings-desc">Export your complete, organized monthly performance data.</p>
+                <p class="settings-desc" id="download-info" style="font-size: 0.85rem; margin-top: -5px; margin-bottom: 0.75rem;"></p>
+                <button class="setting-btn" id="download-btn" onclick="downloadData()"><i class="fa-solid fa-download"></i> Download Report</button>
             </div>
             <div class="settings-section">
                 <h3>About Proxima</h3>
@@ -471,7 +495,7 @@
                 <button class="setting-btn danger" onclick="clearAllData()"><i class="fa-solid fa-trash-can"></i> Clear All Existing Data</button>
             </div>
         </div>
-        <div class="settings-footer">Proxima Workspace Version 1.0.0 (Local Storage Engine)</div>
+        <div class="settings-footer">Proxima Workspace Version 2.1.0</div>
     </div>
 
     <!-- MAIN APP: Navigation -->
@@ -552,24 +576,19 @@
             <section id="pomodoro" class="app-section section-fade">
                 <div class="pomodoro-box-new" id="pomo-card">
                     
-                    <!-- Clean Subtitle Layout -->
                     <div class="pomo-subtitle">
                         <i class="fa-regular fa-circle" id="pomo-sub-icon" style="color: var(--primary); font-size: 0.8rem;"></i>
                         <span id="pomo-mode-desc">Deep Work Session</span>
                     </div>
                     
-                    <!-- Thick Timer Ring Layout -->
                     <div class="pomo-timer-wrapper-new" id="pomo-ring-container">
                         <svg class="pomo-ring-new" viewBox="0 0 280 280">
-                            <!-- Background Track -->
                             <circle class="pomo-ring-bg-new" cx="140" cy="140" r="120"></circle>
-                            <!-- Animated Progress Track -->
                             <circle class="pomo-ring-progress-new" id="pomo-ring-progress" cx="140" cy="140" r="120"></circle>
                         </svg>
                         <div class="time-display-new" id="time-display">25:00</div>
                     </div>
                     
-                    <!-- Minimalist Circular Controls -->
                     <div class="pomo-controls-new">
                         <div class="control-group">
                             <button class="pomo-circle-btn" id="timer-btn" onclick="toggleTimer()">
@@ -630,17 +649,17 @@
                     <!-- Activity Streaks -->
                     <div class="growth-card streak-card">
                         <h3><i class="fa-solid fa-fire" style="color: #f97316"></i> Consistency Engine</h3>
-                        <p class="settings-desc" style="margin-top:-1rem; margin-bottom:1.5rem;">Maintained by completing tasks or focus sessions.</p>
+                        <p class="settings-desc" style="margin-top:-1rem; margin-bottom:1.5rem;">Daily resets. Maintained by completing tasks or focus sessions.</p>
                         <div class="streak-grid">
                             <div class="streak-box">
                                 <i class="fa-solid fa-fire icon-fire"></i>
                                 <div class="streak-val" id="current-streak">0</div>
-                                <div class="streak-label">Current Streak</div>
+                                <div class="streak-label">Daily Streak</div>
                             </div>
                             <div class="streak-box">
                                 <i class="fa-solid fa-trophy icon-trophy"></i>
                                 <div class="streak-val" id="best-streak">0</div>
-                                <div class="streak-label">Longest Streak</div>
+                                <div class="streak-label">Best Streak</div>
                             </div>
                         </div>
                     </div>
@@ -651,6 +670,44 @@
     </main>
 
     <script>
+        // =========================================
+        // CUSTOM UI TOASTS & MODALS ENGINE
+        // =========================================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = 'fa-circle-check';
+            if(type === 'error') icon = 'fa-circle-exclamation';
+            if(type === 'info') icon = 'fa-circle-info';
+            
+            toast.innerHTML = `<i class="fa-solid ${icon}" style="color: var(--${type === 'info' ? 'primary' : type});"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => { toast.classList.add('show'); });
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3500);
+        }
+
+        let confirmAction = null;
+        function showConfirm(message, onConfirmCallback) {
+            document.getElementById('confirm-msg').innerText = message;
+            document.getElementById('confirm-overlay').classList.add('show');
+            confirmAction = onConfirmCallback;
+        }
+        function closeConfirm() {
+            document.getElementById('confirm-overlay').classList.remove('show');
+            confirmAction = null;
+        }
+        function executeConfirm() {
+            if(confirmAction) confirmAction();
+            closeConfirm();
+        }
+
         function injectBubbles() {
             const container = document.getElementById('bubbleSpace');
             for(let i = 0; i < 20; i++) {
@@ -665,12 +722,11 @@
             }
         }
 
-        // Global State
+        // Global State & Analytics Engine
         let tasks = JSON.parse(localStorage.getItem('prox_growth_tasks')) || [];
         let focusMinutes = parseInt(localStorage.getItem('prox_growth_focus')) || 0;
         let focusSessions = parseInt(localStorage.getItem('prox_growth_sessions')) || 0;
         let isDark = localStorage.getItem('prox_theme') === 'dark';
-        let authPassword = localStorage.getItem('prox_auth_pass') || 'NjI2NTE5MzY5Njg5'; 
         
         let currentStreak = parseInt(localStorage.getItem('prox_current_streak')) || 0;
         let bestStreak = parseInt(localStorage.getItem('prox_best_streak')) || 0;
@@ -678,6 +734,9 @@
 
         let weeklyHistory = JSON.parse(localStorage.getItem('prox_weekly_history')) || [0,0,0,0,0,0];
         let lastMonthTotal = parseInt(localStorage.getItem('prox_last_month_total')) || 14; 
+
+        // Daily Analytics Tracker Mapping Map Date -> { created, completed, sessions }
+        let dailyStats = JSON.parse(localStorage.getItem('prox_daily_stats')) || {};
         
         document.addEventListener('DOMContentLoaded', () => {
             injectBubbles();
@@ -688,9 +747,93 @@
             renderAllTasks();
             renderDashboardTasks();
             initCharts();
-            
             updateDisplay(); 
+            updateDownloadLock();
         });
+
+        // Analytics Tracker Logic
+        function updateDailyStat(key, change) {
+            const todayStr = new Date().toDateString();
+            if (!dailyStats[todayStr]) {
+                dailyStats[todayStr] = { created: 0, completed: 0, sessions: 0 };
+            }
+            dailyStats[todayStr][key] += change;
+            if(dailyStats[todayStr][key] < 0) dailyStats[todayStr][key] = 0;
+            try { localStorage.setItem('prox_daily_stats', JSON.stringify(dailyStats)); } catch(e){}
+        }
+
+        function updateDownloadLock() {
+            const now = new Date();
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            const isLastDay = now.getDate() === lastDay.getDate();
+            
+            const dlBtn = document.getElementById('download-btn');
+            const dlInfo = document.getElementById('download-info');
+
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const unlockDateStr = lastDay.toLocaleDateString(undefined, options);
+
+            if (isLastDay) {
+                dlBtn.disabled = false;
+                dlBtn.classList.remove('disabled');
+                dlInfo.innerHTML = `<span style="color: var(--success);"><i class="fa-solid fa-lock-open"></i> Monthly report unlocked. Available today!</span>`;
+            } else {
+                dlBtn.disabled = true;
+                dlBtn.classList.add('disabled');
+                dlInfo.innerHTML = `<span style="color: var(--danger);"><i class="fa-solid fa-lock"></i> Locked. Your monthly data report will be available on <strong>${unlockDateStr}</strong>.</span>`;
+            }
+        }
+
+        function downloadData() {
+            const now = new Date();
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            
+            if (now.getDate() !== lastDay.getDate()) {
+                showToast("Data is locked until the last day of the month.", "error");
+                return;
+            }
+
+            const currentMonthStr = now.toLocaleString('default', { month: 'short', year: 'numeric' });
+            let monthCreated = 0, monthCompleted = 0, monthSessions = 0;
+            
+            Object.keys(dailyStats).forEach(dateStr => {
+                const d = new Date(dateStr);
+                if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
+                    monthCreated += dailyStats[dateStr].created || 0;
+                    monthCompleted += dailyStats[dateStr].completed || 0;
+                    monthSessions += dailyStats[dateStr].sessions || 0;
+                }
+            });
+
+            // Point Algorithm (10 pts per task, 25 pts per focus session)
+            const totalPoints = (monthCompleted * 10) + (monthSessions * 25); 
+
+            const report = {
+                title: `Proxima Growth Report - ${currentMonthStr}`,
+                generatedAt: now.toISOString(),
+                monthlySummary: {
+                    totalTasksCreated: monthCreated,
+                    totalTasksCompleted: monthCompleted,
+                    totalFocusSessions: monthSessions,
+                    totalGrowthPoints: totalPoints,
+                    completionRate: monthCreated > 0 ? Math.round((monthCompleted / monthCreated) * 100) + '%' : '0%',
+                },
+                streakData: {
+                    bestStreak: bestStreak,
+                    currentStreakEndOfMonth: currentStreak
+                },
+                dailyBreakdown: dailyStats,
+                rawTaskData: tasks 
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report, null, 4));
+            const dlAnchorElem = document.createElement('a'); 
+            dlAnchorElem.setAttribute("href", dataStr); 
+            dlAnchorElem.setAttribute("download", `Proxima_Report_${currentMonthStr.replace(' ', '_')}.json`); 
+            dlAnchorElem.click();
+            
+            showToast("Monthly report exported successfully.", "success");
+        }
 
         function handleDailyRollover() {
             const todayStr = new Date().toDateString();
@@ -729,10 +872,11 @@
                 overlay.style.opacity = '0';
                 
                 navTo('dashboard');
+                showToast("Welcome back!", "success");
 
                 setTimeout(() => overlay.style.display = 'none', 400);
             } else {
-                alert('Access Denied: Invalid credentials.');
+                showToast('Access Denied: Invalid credentials.', 'error');
             }
             document.getElementById('logPass').value = '';
         }
@@ -741,31 +885,36 @@
             document.getElementById('logEmail').value = ''; document.getElementById('logPass').value = '';
             const overlay = document.getElementById('auth-overlay');
             overlay.style.display = 'flex'; setTimeout(() => overlay.style.opacity = '1', 10);
+            showToast("Successfully logged out.", "info");
         }
 
         function toggleSettings() {
             document.getElementById('settingsSidebar').classList.toggle('open');
             document.getElementById('settingsBackdrop').classList.toggle('open');
+            if (document.getElementById('settingsSidebar').classList.contains('open')) {
+                updateDownloadLock(); // Refresh lock status accurately when opening settings
+            }
         }
         
         function changePassword(e) {
             e.preventDefault();
             const newPass = document.getElementById('new-pass').value;
-            if(newPass.length < 4) return alert('Password must be at least 4 characters long.');
-            try { localStorage.setItem('prox_auth_hash', btoa(newPass)); alert('Security password successfully updated!'); document.getElementById('pwd-form').reset(); } 
-            catch(e) { alert('Error: Could not save password.'); }
-        }
-        
-        function downloadData() {
-            const dataToExport = { app: "Proxima Workspace", exportDate: new Date().toISOString(), stats: { totalFocusMinutes: focusMinutes, totalFocusSessions: focusSessions, currentStreak, bestStreak }, tasks: tasks };
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
-            const dlAnchorElem = document.createElement('a'); dlAnchorElem.setAttribute("href", dataStr); dlAnchorElem.setAttribute("download", "proxima_backup.json"); dlAnchorElem.click();
+            if(newPass.length < 4) return showToast('Password must be at least 4 characters long.', 'error');
+            try { 
+                localStorage.setItem('prox_auth_hash', btoa(newPass)); 
+                showToast('Security password successfully updated!', 'success'); 
+                document.getElementById('pwd-form').reset(); 
+            } catch(e) { 
+                showToast('Error: Could not save password.', 'error'); 
+            }
         }
         
         function clearAllData() {
-            if(confirm("WARNING: This action is irreversible. All tasks, focus statistics, and custom settings will be deleted. Do you want to continue?")) {
-                localStorage.clear(); alert("All data cleared. The application will now reload."); location.reload();
-            }
+            showConfirm("WARNING: This action is irreversible. All tasks, focus statistics, and custom settings will be deleted. Do you want to continue?", () => {
+                localStorage.clear(); 
+                showToast("All data cleared. Reloading...", "info");
+                setTimeout(() => location.reload(), 1500);
+            });
         }
 
         // Navigation
@@ -803,29 +952,43 @@
         // Streaks Algorithm Engine
         function checkStreakStatusOnLoad() {
             const todayStr = new Date().toDateString();
+            
             if (lastActiveDate !== todayStr && lastActiveDate !== null) {
-                let yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-                if (lastActiveDate !== yesterday.toDateString()) {
-                    currentStreak = 0; try { localStorage.setItem('prox_current_streak', currentStreak); } catch(e){}
-                }
+                currentStreak = 0; 
+                lastActiveDate = todayStr;
+                try { 
+                    localStorage.setItem('prox_current_streak', currentStreak); 
+                    localStorage.setItem('prox_last_active_date', lastActiveDate); 
+                } catch(e){}
             }
-            document.getElementById('current-streak').innerText = currentStreak; document.getElementById('best-streak').innerText = bestStreak;
+            
+            document.getElementById('current-streak').innerText = currentStreak; 
+            document.getElementById('best-streak').innerText = bestStreak;
         }
 
         function registerActivity() {
             const todayStr = new Date().toDateString();
+            
             if (lastActiveDate !== todayStr) {
-                let yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-                if (lastActiveDate === yesterday.toDateString()) { currentStreak += 1; } else { currentStreak = 1; }
+                currentStreak = 0; 
                 lastActiveDate = todayStr;
-                if (currentStreak > bestStreak) { bestStreak = currentStreak; }
-                try {
-                    localStorage.setItem('prox_last_active_date', lastActiveDate);
-                    localStorage.setItem('prox_best_streak', bestStreak);
-                    localStorage.setItem('prox_current_streak', currentStreak);
-                } catch(e) {}
-                document.getElementById('current-streak').innerText = currentStreak; document.getElementById('best-streak').innerText = bestStreak;
             }
+            
+            currentStreak += 1; 
+            
+            if (currentStreak > bestStreak) { 
+                bestStreak = currentStreak; 
+            }
+            
+            try {
+                localStorage.setItem('prox_last_active_date', lastActiveDate);
+                localStorage.setItem('prox_best_streak', bestStreak);
+                localStorage.setItem('prox_current_streak', currentStreak);
+            } catch(e) {}
+            
+            document.getElementById('current-streak').innerText = currentStreak; 
+            document.getElementById('best-streak').innerText = bestStreak;
+            
             updateAllCharts(); 
         }
 
@@ -834,7 +997,10 @@
             const input = document.getElementById('task-input'); const priority = document.getElementById('task-priority').value;
             const text = input.value.trim(); if (!text) return;
             const newTask = { id: Date.now(), text, priority, completed: false, completedDate: null };
-            tasks.push(newTask); saveData(); input.value = ''; updateStats(); renderDashboardTasks(); sortAndReRenderLater();
+            tasks.push(newTask); 
+            updateDailyStat('created', 1);
+            saveData(); input.value = ''; updateStats(); renderDashboardTasks(); sortAndReRenderLater();
+            showToast("Task created successfully.", "success");
         }
 
         function createTaskElement(task) {
@@ -876,6 +1042,7 @@
                 if(newText) task.text = newText;
                 task.priority = document.getElementById(`edit-pri-${id}`).value;
                 saveData(); renderAllTasks(); renderDashboardTasks();
+                showToast("Task updated.", "success");
             }
         }
 
@@ -884,17 +1051,32 @@
             if(task) {
                 task.completed = !task.completed;
                 task.completedDate = task.completed ? new Date().toDateString() : null;
-                saveData(); if (task.completed) registerActivity(); 
+                
+                updateDailyStat('completed', task.completed ? 1 : -1);
+                
+                saveData(); 
+                if (task.completed) registerActivity(); 
                 updateStats(); renderDashboardTasks(); updateAllCharts(); sortAndReRenderLater();
             }
         }
 
         function deleteTask(id, btnElement) {
-            const card = btnElement.closest('.crud-task-card'); card.classList.add('animate-out');
-            setTimeout(() => {
-                tasks = tasks.filter(t => t.id !== id);
-                saveData(); updateStats(); renderDashboardTasks(); sortAndReRenderLater(); updateAllCharts();
-            }, 300);
+            showConfirm("Are you sure you want to delete this task?", () => {
+                const card = btnElement.closest('.crud-task-card'); 
+                card.classList.add('animate-out');
+                setTimeout(() => {
+                    const task = tasks.find(t => t.id === id);
+                    if(task) {
+                        const todayStr = new Date().toDateString();
+                        // accurately remove from todays analytics if deleted today
+                        if(new Date(task.id).toDateString() === todayStr) updateDailyStat('created', -1);
+                        if(task.completed && task.completedDate === todayStr) updateDailyStat('completed', -1);
+                    }
+                    tasks = tasks.filter(t => t.id !== id);
+                    saveData(); updateStats(); renderDashboardTasks(); sortAndReRenderLater(); updateAllCharts();
+                    showToast("Task deleted.", "info");
+                }, 300);
+            });
         }
 
         function renderAllTasks() {
@@ -935,7 +1117,10 @@
                 localStorage.setItem('prox_growth_tasks', JSON.stringify(tasks)); 
                 localStorage.setItem('prox_growth_focus', focusMinutes); 
                 localStorage.setItem('prox_growth_sessions', focusSessions); 
-            } catch (e) { console.error("Storage limit reached", e); alert("Storage Warning: Browser local storage limit reached. Please clear old tasks."); }
+            } catch (e) { 
+                console.error("Storage limit reached", e); 
+                showToast("Storage Warning: Browser local storage limit reached. Please clear old tasks.", "error"); 
+            }
         }
 
         function updateStats() {
@@ -945,7 +1130,7 @@
         }
 
         // =========================================
-        // POMODORO ENGINE (FLUID UI UPDATE)
+        // POMODORO ENGINE
         // =========================================
         let timer; 
         const WORK_TIME_MS = 25 * 60 * 1000; 
@@ -991,7 +1176,6 @@
                 icon.className = 'fa-solid fa-pause';
                 textLabel.innerText = 'Pause';
                 
-                // Add fluid pulsing class based on mode
                 if (isBreakMode) {
                     container.classList.add('timer-active-break');
                     container.classList.remove('timer-active-work');
@@ -1002,8 +1186,6 @@
             } else {
                 icon.className = 'fa-solid fa-play';
                 textLabel.innerText = 'Start';
-                
-                // Remove pulse animation
                 container.classList.remove('timer-active-work', 'timer-active-break');
             }
         }
@@ -1032,13 +1214,16 @@
         
         function handleTimerComplete() {
             if (!isBreakMode) {
-                alert("Session complete! Excellent focus. Time for a 5-minute break."); 
-                focusMinutes += 25; focusSessions += 1;
+                showToast("Session complete! Excellent focus. Time for a short break.", "success");
+                focusMinutes += 25; 
+                focusSessions += 1;
+                updateDailyStat('sessions', 1);
+                
                 saveData(); updateStats(); registerActivity(); 
                 
                 isBreakMode = true; timeRemainingMs = BREAK_TIME_MS;
             } else {
-                alert("Break is over! Ready to focus again?");
+                showToast("Break is over! Ready to focus again?", "info");
                 isBreakMode = false; timeRemainingMs = WORK_TIME_MS;
             }
             isTiming = false; 
