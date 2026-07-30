@@ -1,1301 +1,2382 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proxima | Growth & Productivity</title>
-    
-    <!-- Bricolage Grotesque Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
-    
-    <!-- Icons and Charts -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Proxima Workspace</title>
 
-    <style>
-        /* =========================================
-           MAIN APP STYLES (PROXIMA)
-           ========================================= */
-        :root {
-            --bg-body: #f8fafc;        
-            --bg-surface: #ffffff;     
-            --primary: #0d9488;        
-            --primary-hover: #0f766e;
-            --secondary: #2563eb;      
-            --success: #10b981;        
-            --danger: #ef4444;         
-            --text-main: #0f172a;      
-            --text-muted: #64748b;     
-            --border: #e2e8f0;         
-            --shadow: rgba(15, 23, 42, 0.08);
-            --transition-speed: 0.35s;
-            --spring-curve: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            --smooth-curve: cubic-bezier(0.16, 1, 0.3, 1);
-        }
+<!-- Google Font: Bricolage Grotesque -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
 
-        [data-theme="dark"] {
-            --bg-body: #0f172a;        
-            --bg-surface: #1e293b;     
-            --primary: #14b8a6;        
-            --primary-hover: #2dd4bf;
-            --secondary: #3b82f6;      
-            --success: #34d399;        
-            --danger: #f87171;         
-            --text-main: #f8fafc;      
-            --text-muted: #94a3b8;     
-            --border: #334155;         
-            --shadow: rgba(0, 0, 0, 0.25);
-        }
+<!-- FontAwesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-        * { 
-            margin: 0; padding: 0; box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-        
-        body {
-            font-family: 'Bricolage Grotesque', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            display: flex;
-            height: 100vh;
-            width: 100%; 
-            overflow: hidden; 
-            transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
-        }
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
-        h1, h2, h3, h4 { font-weight: 600; margin-bottom: 0.75rem; line-height: 1.2; transition: color var(--transition-speed) ease;}
-        p { line-height: 1.5; }
-        button, input, select { font-family: 'Bricolage Grotesque', sans-serif; border: none; outline: none; }
-        
-        #theme-wipe { position: fixed; left: 0; width: 100%; height: 0; background: var(--primary); z-index: 100000; pointer-events: none; transition: height 0.4s var(--smooth-curve); }
-        #theme-wipe.wipe-down { height: 100vh; }
+<style>
+/* ============================================================
+   PROXIMA WORKSPACE — DESIGN SYSTEM
+   ============================================================
+   Signature idea: everything in the app is framed as "orbits" —
+   the SVG ring in the timer, the streak dial, the nav rail dot
+   indicator, and the card corner-notches all share one motif:
+   a quarter-circle notch cut from the top-left of cards, echoing
+   the Pomodoro ring elsewhere in the product. Typography leans
+   on Bricolage Grotesque's variable weight axis for a distinct
+   heading rhythm (tight, heavy numerals; airy labels).
+   ============================================================ */
 
-        @keyframes slideInDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
-        @keyframes slideOutRight { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(30px); } }
+:root{
+  /* ---- Brand colors (spec-mandated) ---- */
+  --color-primary: #0d9488;      /* Teal */
+  --color-primary-rgb: 13,148,136;
+  --color-secondary: #2563eb;    /* Blue */
+  --color-secondary-rgb: 37,99,235;
+  --color-success: #10b981;      /* Green */
+  --color-success-rgb: 16,185,129;
+  --color-danger: #ef4444;       /* Red */
+  --color-danger-rgb: 239,68,68;
 
-        .animate-in { animation: slideInDown 0.4s var(--smooth-curve) forwards; }
-        .animate-out { animation: slideOutRight 0.3s var(--smooth-curve) forwards; pointer-events: none; }
-        .section-fade { animation: fadeInScale 0.4s var(--smooth-curve) forwards; }
+  /* ---- Priority accents ---- */
+  --color-low: #64748b;
+  --color-medium: #f59e0b;
+  --color-high: #ef4444;
 
-        .sidebar { width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem; z-index: 100; transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;}
-        .logo-area { font-size: 1.75rem; font-weight: 700; color: var(--primary); margin-bottom: 2.5rem; display: flex; align-items: center; gap: 0.5rem; }
-        .nav-menu { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
-        .nav-btn { padding: 0.85rem 1.2rem; border-radius: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 1rem; font-size: 1.1rem; cursor: pointer; transition: all 0.25s var(--smooth-curve); background: transparent; text-align: left; width: 100%; font-weight: 500;}
-        .nav-btn:hover { background: var(--bg-body); color: var(--primary); transform: translateX(4px); }
-        .nav-btn:active { transform: scale(0.95); }
-        .nav-btn.active { background: var(--primary); color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2); transform: none; }
+  /* ---- Easing curves (spec-mandated) ---- */
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-        .main-content { 
-            flex: 1; display: flex; flex-direction: column; 
-            background-color: var(--bg-body); 
-            background-image: radial-gradient(at 0% 0%, rgba(13, 148, 136, 0.1) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(37, 99, 235, 0.1) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(13, 148, 136, 0.1) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(37, 99, 235, 0.1) 0px, transparent 50%); 
-            background-size: cover; background-position: center; background-attachment: fixed; 
-            overflow: hidden; width: 100%; 
-            transition: background-color var(--transition-speed) ease;
-        }
-        [data-theme="dark"] .main-content { background-image: radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.15) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(20, 184, 166, 0.15) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%); }
+  /* ---- Light theme tokens ---- */
+  --bg-canvas: #f4f6f6;
+  --bg-surface: #ffffff;
+  --bg-surface-alt: #eef2f2;
+  --bg-inset: #e7ebeb;
+  --text-primary: #0f1719;
+  --text-secondary: #57696b;
+  --text-tertiary: #94a3a4;
+  --border-color: rgba(15,23,25,0.08);
+  --border-strong: rgba(15,23,25,0.14);
+  --shadow-sm: 0 1px 2px rgba(15,23,25,0.05), 0 1px 1px rgba(15,23,25,0.03);
+  --shadow-md: 0 6px 16px rgba(15,23,25,0.08), 0 2px 4px rgba(15,23,25,0.04);
+  --shadow-lg: 0 20px 48px rgba(15,23,25,0.14), 0 6px 12px rgba(15,23,25,0.06);
+  --glass-bg: rgba(255,255,255,0.68);
+  --overlay-bg: rgba(10,16,17,0.5);
 
-        .top-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2.5rem; background: var(--bg-surface); border-bottom: 1px solid var(--border); z-index: 10; width: 100%; transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;}
-        .header-actions { display: flex; gap: 1rem; align-items: center; }
-        .header-btn { background: var(--bg-body); color: var(--text-main); width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; transition: all 0.25s var(--spring-curve); }
-        .header-btn:hover { background: var(--border); transform: translateY(-2px); }
-        .header-btn:active { transform: scale(0.9); }
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
 
-        .content-scroll { flex: 1; position: relative; width: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
-        .app-section { display: none; padding: 2.5rem; min-height: 100%; width: 100%; }
-        .app-section.active { display: block; }
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
 
-        .card-surface { background: var(--bg-surface); border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 15px var(--shadow); width: 100%; transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;}
-        .chk-box { min-width: 24px; width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s var(--smooth-curve); background: var(--bg-surface); flex-shrink: 0; }
-        .chk-box:hover { border-color: var(--primary); transform: scale(1.1); }
-        .chk-box:active { transform: scale(0.9); }
-        .done .chk-box { background: var(--success); border-color: var(--success); transform: none; }
-        .done .chk-box::after { content: '\f00c'; font-family: 'FontAwesome'; color: white; font-size: 12px; }
-        .priority-dot { min-width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        .dot-high { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
-        .dot-med { background: #f59e0b; }
-        .dot-low { background: var(--success); }
+  --nav-w: 232px;
+  --topbar-h: 68px;
+}
 
-        /* Dashboard */
-        .stats-bar { display: flex; margin-bottom: 2.5rem; width: 100%; }
-        .stat-segment { flex: 1; padding: 1.5rem 1.5rem; text-align: center; border-right: 1px solid var(--border); transition: border-color var(--transition-speed) ease;}
-        .stat-segment:last-child { border-right: none; }
-        .stat-segment h3 { color: var(--text-muted); font-size: 1.1rem; font-weight: 500; margin-bottom: 0.25rem; transition: color var(--transition-speed) ease;}
-        .stat-value { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
-        .up-next-container { padding: 1.5rem; }
-        .up-next-header { margin-bottom: 1rem; color: var(--text-main); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;}
-        .dash-task-list { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; }
-        .dash-task-row { display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-radius: 12px; background: var(--bg-body); border: 1px solid transparent; transition: all 0.25s var(--smooth-curve); width: 100%; }
-        .dash-task-row:hover { border-color: var(--border); transform: translateX(4px); }
-        .dash-task-info { display: flex; align-items: center; gap: 1rem; width: 100%; overflow: hidden;}
-        .dash-task-info .task-text { font-size: 1.1rem; color: var(--text-main); word-break: break-word; transition: color var(--transition-speed) ease;}
-        
-        /* Tasks Manager */
-        .crud-create-panel { padding: 1.5rem; margin-bottom: 2.5rem; }
-        .crud-create-panel h3 { color: var(--text-main); margin-bottom: 1rem; font-size: 1.2rem; }
-        .crud-input-row { display: flex; gap: 1rem; align-items: stretch; width: 100%; }
-        .crud-input-row input { flex: 1; font-size: 1.1rem; padding: 1rem 1.2rem; background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); border-radius: 12px; transition: border-color 0.3s ease, box-shadow 0.3s ease; min-width: 0; }
-        .crud-input-row input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1); }
-        .crud-input-row select { padding: 1rem 1.2rem; border-radius: 12px; background: var(--bg-body); border: 1px solid var(--border); color: var(--text-main); cursor: pointer; font-size: 1rem; min-width: 0; transition: border-color 0.3s ease; }
-        .crud-input-row select:focus { border-color: var(--primary); }
-        .btn-create { background: var(--primary); color: white; padding: 0 2rem; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.25s var(--spring-curve); display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1.1rem; flex-shrink: 0; }
-        .btn-create:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2); }
-        .btn-create:active { transform: scale(0.95); }
-        
-        .task-group-header { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 500; transition: color var(--transition-speed) ease;}
-        .task-group-header .count-badge { background: var(--bg-body); color: var(--text-main); padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.9rem; border: 1px solid var(--border); transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;}
-        .tasks-grid { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 3rem; width: 100%; }
-        .crud-task-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px; transition: all 0.3s var(--smooth-curve); box-shadow: 0 2px 8px var(--shadow); overflow: hidden; width: 100%; }
-        .crud-task-card:hover { border-color: var(--primary); box-shadow: 0 6px 20px var(--shadow); transform: translateY(-2px); }
-        .crud-task-view { display: flex; align-items: center; padding: 1.25rem 1.5rem; gap: 1.5rem; width: 100%; }
-        .crud-task-content { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
-        .crud-task-title { font-size: 1.2rem; font-weight: 500; color: var(--text-main); word-break: break-word; transition: color var(--transition-speed) ease; }
-        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; width: fit-content; }
-        .badge.high { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
-        .badge.medium { background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); }
-        .badge.low { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
-        .crud-actions { display: flex; gap: 0.5rem; opacity: 0.6; transition: opacity 0.3s ease; flex-shrink: 0; }
-        .crud-task-card:hover .crud-actions { opacity: 1; }
-        .action-btn { background: var(--bg-body); border: 1px solid var(--border); width: 36px; height: 36px; border-radius: 8px; color: var(--text-muted); cursor: pointer; transition: all 0.25s var(--spring-curve); display: flex; align-items: center; justify-content: center; }
-        .action-btn:active { transform: scale(0.85); }
-        .action-btn.edit:hover { background: var(--secondary); color: white; border-color: var(--secondary); transform: translateY(-2px); }
-        .action-btn.delete:hover { background: var(--danger); color: white; border-color: var(--danger); transform: translateY(-2px); }
-        .crud-task-card.done { background: var(--bg-body); opacity: 0.8; transform: none; box-shadow: none; border-color: var(--border); }
-        .crud-task-card.done .crud-task-title { text-decoration: line-through; color: var(--text-muted); }
-        .crud-task-card.done .badge { filter: grayscale(100%); opacity: 0.6; }
-        .crud-task-edit { display: none; padding: 1.25rem 1.5rem; background: rgba(13, 148, 136, 0.05); gap: 1rem; align-items: center; width: 100%; transition: background-color var(--transition-speed) ease;}
-        .crud-task-edit input { flex: 1; font-size: 1.1rem; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--primary); background: var(--bg-surface); color: var(--text-main); min-width: 0; }
-        .crud-task-edit select { padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); min-width: 0; }
-        .edit-controls { display: flex; gap: 0.5rem; flex-shrink: 0; }
-        .btn-save { background: var(--primary); color: white; padding: 0.75rem 1.25rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease;}
-        .btn-save:active { transform: scale(0.95); }
-        .btn-cancel { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 0.75rem 1.25rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease;}
-        .btn-cancel:active { transform: scale(0.95); }
+[data-theme="dark"]{
+  --bg-canvas: #0b1213;
+  --bg-surface: #121b1c;
+  --bg-surface-alt: #16211f;
+  --bg-inset: #0e1617;
+  --text-primary: #eef3f2;
+  --text-secondary: #9fb2b0;
+  --text-tertiary: #647573;
+  --border-color: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.14);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 6px 20px rgba(0,0,0,0.35);
+  --shadow-lg: 0 24px 60px rgba(0,0,0,0.5);
+  --glass-bg: rgba(18,27,28,0.72);
+  --overlay-bg: rgba(0,0,0,0.6);
+}
 
-        /* =========================================
-           POMODORO TIMER (MODERN, SINGLE LAYOUT)
-           ========================================= */
-        .pomodoro-box-new {
-            background: var(--bg-surface); border-radius: 24px; border: 1px solid var(--border);
-            max-width: 420px; margin: 0 auto; padding: 2rem 1.5rem; box-shadow: 0 10px 30px var(--shadow);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-        }
+*,*::before,*::after{ box-sizing: border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: var(--font-body);
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  overflow:hidden;
+  transition: background .4s var(--ease-smooth), color .4s var(--ease-smooth);
+}
+h1,h2,h3,h4,p,ul,figure{ margin:0; }
+ul{ list-style:none; padding:0; }
+button{ font-family:inherit; }
+a{ color:inherit; text-decoration:none; }
+::selection{ background: rgba(var(--color-primary-rgb),0.25); }
 
-        .pomo-subtitle {
-            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-            margin-bottom: 2rem; color: var(--text-muted); font-size: 0.95rem; font-weight: 500;
-        }
-        
-        #pomo-sub-icon { transition: color 0.4s ease; }
-        #pomo-mode-desc { transition: color 0.4s ease; }
+::-webkit-scrollbar{ width:8px; height:8px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background: var(--border-strong); border-radius:8px; }
+::-webkit-scrollbar-thumb:hover{ background: var(--text-tertiary); }
 
-        .pomo-timer-wrapper-new {
-            position: relative; width: 280px; height: 280px; margin-bottom: 2.5rem;
-            display: flex; align-items: center; justify-content: center; border-radius: 50%;
-        }
+.visually-hidden{
+  position:absolute!important; width:1px;height:1px; padding:0;margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
 
-        @keyframes ringPulse {
-            0% { filter: drop-shadow(0 0 0 rgba(13, 148, 136, 0)); }
-            50% { filter: drop-shadow(0 0 15px rgba(13, 148, 136, 0.4)); }
-            100% { filter: drop-shadow(0 0 0 rgba(13, 148, 136, 0)); }
-        }
-        @keyframes ringPulseBreak {
-            0% { filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0)); }
-            50% { filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4)); }
-            100% { filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0)); }
-        }
-        
-        .timer-active-work .pomo-ring-new { animation: ringPulse 2.5s infinite ease-in-out; }
-        .timer-active-break .pomo-ring-new { animation: ringPulseBreak 2.5s infinite ease-in-out; }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+}
 
-        .pomo-ring-new {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            transform: rotate(-90deg); overflow: visible;
-        }
+:focus-visible{
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
 
-        .pomo-ring-bg-new {
-            fill: none; stroke: var(--bg-body); stroke-width: 18px;
-            transition: stroke var(--transition-speed) ease;
-        }
-        [data-theme="dark"] .pomo-ring-bg-new { stroke: rgba(255, 255, 255, 0.04); }
+/* ============================================================
+   LOGIN SCREEN
+   ============================================================ */
+#login-screen{
+  position:fixed; inset:0; z-index:9000;
+  display:flex; align-items:center; justify-content:center;
+  background:
+    radial-gradient(1200px 800px at 15% -10%, rgba(var(--color-primary-rgb),0.35), transparent 60%),
+    radial-gradient(1000px 700px at 110% 110%, rgba(var(--color-secondary-rgb),0.28), transparent 60%),
+    linear-gradient(160deg, #06181a 0%, #0a1414 55%, #0c1a19 100%);
+  overflow:hidden;
+}
+#login-screen.hidden{ display:none; }
 
-        .pomo-ring-progress-new {
-            fill: none; stroke: var(--primary); stroke-width: 18px;
-            stroke-linecap: round; stroke-dasharray: 753.98; stroke-dashoffset: 0;
-            transition: stroke-dashoffset 0.25s linear, stroke 0.4s ease;
-        }
+.godray{
+  position:absolute; top:-20%; left:50%;
+  width:140%; height:160%;
+  transform-origin: top center;
+  background: conic-gradient(from 90deg at 50% 0%,
+    transparent 0deg, rgba(255,255,255,0.05) 4deg, transparent 8deg,
+    transparent 20deg, rgba(var(--color-primary-rgb),0.10) 24deg, transparent 30deg,
+    transparent 50deg, rgba(255,255,255,0.04) 54deg, transparent 60deg,
+    transparent 80deg, rgba(var(--color-secondary-rgb),0.08) 85deg, transparent 92deg,
+    transparent 360deg);
+  animation: rayDrift 22s linear infinite;
+  mix-blend-mode: screen;
+  pointer-events:none;
+}
+@keyframes rayDrift{
+  0%{ transform: translateX(-50%) rotate(0deg); }
+  100%{ transform: translateX(-50%) rotate(360deg); }
+}
 
-        .time-display-new {
-            font-size: 4.2rem; font-weight: 700; color: var(--text-main); 
-            font-variant-numeric: tabular-nums; z-index: 2; line-height: 1; letter-spacing: -1px;
-            transition: color var(--transition-speed) ease;
-        }
+.bubble-field{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.bubble{
+  position:absolute; bottom:-120px;
+  border-radius:50%;
+  background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.35), rgba(var(--color-primary-rgb),0.08) 60%, transparent 72%);
+  border:1px solid rgba(255,255,255,0.12);
+  animation-name: bubbleRise;
+  animation-timing-function: cubic-bezier(0.4,0,0.6,1);
+  animation-iteration-count: infinite;
+}
+@keyframes bubbleRise{
+  0%{ transform: translateY(0) translateX(0) scale(1); opacity:0; }
+  8%{ opacity:.9; }
+  90%{ opacity:.6; }
+  100%{ transform: translateY(-115vh) translateX(var(--drift,40px)) scale(1.15); opacity:0; }
+}
 
-        .pomo-controls-new { display: flex; gap: 4rem; align-items: center; justify-content: center; width: 100%; }
-        .control-group { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.login-card{
+  position:relative; z-index:2;
+  width:min(420px, 90vw);
+  padding:44px 38px 38px;
+  border-radius: var(--radius-lg);
+  background: rgba(15,25,26,0.55);
+  border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
+  color:#eef3f2;
+  animation: cardRise .7s var(--ease-smooth) both;
+}
+@keyframes cardRise{
+  from{ opacity:0; transform: translateY(24px) scale(.97); }
+  to{ opacity:1; transform: translateY(0) scale(1); }
+}
+.login-mark{
+  width:56px; height:56px; border-radius:16px; margin:0 auto 18px;
+  display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  box-shadow: 0 10px 24px rgba(var(--color-primary-rgb),0.35);
+  font-size:22px; color:#fff;
+}
+.login-title{
+  font-family:var(--font-display); font-weight:700; font-size:26px;
+  text-align:center; letter-spacing:-0.02em; margin-bottom:6px;
+}
+.login-sub{
+  text-align:center; font-size:13.5px; color:rgba(238,243,242,0.6); margin-bottom:28px;
+}
+.login-field{ margin-bottom:16px; }
+.login-field label{
+  display:block; font-size:12px; font-weight:600; letter-spacing:0.03em;
+  text-transform:uppercase; color: rgba(238,243,242,0.55); margin-bottom:7px;
+}
+.login-input-wrap{ position:relative; }
+.login-input-wrap i.field-icon{
+  position:absolute; left:15px; top:50%; transform:translateY(-50%);
+  color: rgba(238,243,242,0.4); font-size:14px;
+}
+.login-input-wrap input{
+  width:100%; padding:13px 14px 13px 40px;
+  background: rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius: 12px; color:#fff; font-size:14.5px;
+  transition: border-color .25s var(--ease-smooth), background .25s var(--ease-smooth), box-shadow .25s var(--ease-smooth);
+}
+.login-input-wrap input::placeholder{ color: rgba(238,243,242,0.32); }
+.login-input-wrap input:focus{
+  outline:none; border-color: var(--color-primary);
+  background: rgba(255,255,255,0.09);
+  box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb),0.18);
+}
+.login-toggle-eye{
+  position:absolute; right:13px; top:50%; transform:translateY(-50%);
+  background:none; border:none; color:rgba(238,243,242,0.45); cursor:pointer; font-size:14px; padding:4px;
+}
+.login-error{
+  display:flex; align-items:center; gap:8px;
+  font-size:13px; color:#ffb4b4;
+  background: rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3);
+  padding:10px 12px; border-radius:10px; margin-bottom:16px;
+  animation: shakeX .4s var(--ease-spring);
+}
+.login-error.hidden{ display:none; }
+@keyframes shakeX{
+  0%,100%{ transform: translateX(0); }
+  20%{ transform: translateX(-6px); }
+  40%{ transform: translateX(5px); }
+  60%{ transform: translateX(-3px); }
+  80%{ transform: translateX(2px); }
+}
+.btn-login-submit{
+  width:100%; padding:14px; margin-top:6px;
+  border:none; border-radius:12px; cursor:pointer;
+  background: linear-gradient(135deg, var(--color-primary), #0f766e);
+  color:#fff; font-weight:700; font-size:15px; letter-spacing:0.01em;
+  box-shadow: 0 12px 26px rgba(var(--color-primary-rgb),0.35);
+  transition: transform .18s var(--ease-smooth), box-shadow .25s var(--ease-smooth), filter .2s;
+}
+.btn-login-submit:hover{ filter:brightness(1.08); }
+.btn-login-submit:active{ transform: scale(0.96); box-shadow: 0 6px 14px rgba(var(--color-primary-rgb),0.3); }
+.login-hint{
+  text-align:center; margin-top:20px; font-size:11.5px; color:rgba(238,243,242,0.35);
+  line-height:1.5;
+}
 
-        .pomo-circle-btn {
-            width: 70px; height: 70px; border-radius: 50%; border: none; outline: none;
-            background: rgba(13, 148, 136, 0.08); color: var(--primary);
-            display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
-            cursor: pointer; transition: all 0.3s var(--spring-curve);
-        }
-        .pomo-circle-btn:hover { transform: scale(1.08); background: rgba(13, 148, 136, 0.15); }
-        .pomo-circle-btn:active { transform: scale(0.9); }
-        
-        [data-theme="dark"] .pomo-circle-btn { background: rgba(20, 184, 166, 0.1); color: var(--primary); }
-        [data-theme="dark"] .pomo-circle-btn:hover { background: rgba(20, 184, 166, 0.2); }
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+.app-hidden{ display:none !important; }
 
-        .control-label {
-            font-size: 0.9rem; font-weight: 500; color: var(--text-muted); text-transform: capitalize;
-            transition: color var(--transition-speed) ease;
-        }
+#app-shell{
+  height:100vh; /* fallback for browsers without dvh support */
+  height:100dvh; /* accounts for mobile browser chrome so nothing sits below the fold */
+  width:100vw;
+  display:grid;
+  grid-template-columns: var(--nav-w) 1fr;
+}
 
-        .pomodoro-box-new.break-mode .pomo-ring-progress-new { stroke: var(--success); }
-        .pomodoro-box-new.break-mode .pomo-circle-btn { color: var(--success); background: rgba(16, 185, 129, 0.1); }
-        .pomodoro-box-new.break-mode .pomo-circle-btn:hover { background: rgba(16, 185, 129, 0.2); }
-        .pomodoro-box-new.break-mode #pomo-sub-icon { color: var(--success) !important; }
+/* ---- Side nav (desktop) ---- */
+#side-nav{
+  background: var(--bg-surface);
+  border-right:1px solid var(--border-color);
+  padding:24px 16px;
+  display:flex; flex-direction:column;
+  gap: 4px;
+  overflow-y:auto;
+}
+.nav-brand{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 10px 26px;
+}
+.nav-brand .mark{
+  width:38px; height:38px; border-radius:12px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px;
+  flex-shrink:0;
+  box-shadow: 0 8px 18px rgba(var(--color-primary-rgb),0.28);
+}
+.nav-brand .word{
+  font-family: var(--font-display); font-weight:700; font-size:17px; letter-spacing:-0.02em;
+  line-height:1.15;
+}
+.nav-brand .word small{ display:block; font-weight:500; font-size:10.5px; color:var(--text-tertiary); letter-spacing:0.08em; text-transform:uppercase; }
 
-        /* Growth */
-        .growth-header { margin-bottom: 2rem; width: 100%; }
-        .growth-header h2 { font-size: 1.8rem; color: var(--text-main); margin-bottom: 0.25rem; }
-        .growth-header p { color: var(--text-muted); font-size: 1.1rem; }
-        .growth-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; width: 100%; }
-        .growth-card { background: var(--bg-surface); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--border); box-shadow: 0 4px 15px var(--shadow); display: flex; flex-direction: column; width: 100%; min-width: 0; overflow: hidden; transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;}
-        .growth-card h3 { color: var(--text-main); font-size: 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
-        .chart-container-circle { position: relative; width: 100%; height: 220px; display: block; margin: 0 auto; }
-        .ratio-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; width: 100%; }
-        .ratio-overlay span { display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-        .ratio-overlay strong { font-size: 1.8rem; color: var(--text-main); font-weight: 700; transition: color var(--transition-speed) ease;}
-        .chart-container { position: relative; width: 100%; height: 220px; display: block; }
-        .streak-card { justify-content: center; }
-        .streak-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: center; width: 100%; }
-        .streak-box { background: var(--bg-body); padding: 1.5rem 0.5rem; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; width: 100%; min-width: 0; transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;}
-        .streak-box i { font-size: 2rem; }
-        .icon-fire { color: #f97316; }
-        .icon-trophy { color: #eab308; }
-        .streak-val { font-size: 2.2rem; font-weight: 700; color: var(--text-main); line-height: 1; transition: color var(--transition-speed) ease;}
-        .streak-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; word-break: break-word; }
+.nav-item{
+  display:flex; align-items:center; gap:12px;
+  padding:11px 14px; border-radius: var(--radius-sm);
+  color: var(--text-secondary); font-weight:600; font-size:14px;
+  cursor:pointer; border:none; background:none; width:100%; text-align:left;
+  position:relative;
+  transition: background .25s var(--ease-smooth), color .2s var(--ease-smooth), transform .15s var(--ease-smooth);
+}
+.nav-item i{ width:18px; text-align:center; font-size:15px; }
+.nav-item:hover{ background: var(--bg-surface-alt); color: var(--text-primary); }
+.nav-item:active{ transform: scale(0.97); }
+.nav-item.active{
+  background: rgba(var(--color-primary-rgb), 0.12);
+  color: var(--color-primary);
+}
+.nav-item.active::before{
+  content:''; position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+  width:4px; height:20px; border-radius:0 4px 4px 0;
+  background: var(--color-primary);
+}
+.nav-item .nav-dot{
+  margin-left:auto; width:8px; height:8px; border-radius:50%;
+  background: var(--color-danger); display:none;
+}
+.nav-item .nav-dot.show{ display:block; }
 
+.nav-spacer{ flex:1; }
 
-        /* =========================================
-           MOBILE OVERRIDES
-           ========================================= */
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: calc(70px + env(safe-area-inset-bottom)); flex-direction: row; padding: 0 0 env(safe-area-inset-bottom) 0; border-right: none; border-top: 1px solid var(--border); z-index: 1000; box-shadow: 0 -4px 15px var(--shadow); }
-            .logo-area { display: none; } 
-            .nav-menu { flex-direction: row; justify-content: space-around; align-items: center; width: 100%; height: 70px; gap: 0; }
-            .nav-btn { flex-direction: column; gap: 0.25rem; padding: 0.5rem; font-size: 0.8rem; border-radius: 0; text-align: center; justify-content: center; height: 100%; }
-            .nav-btn i { font-size: 1.25rem; }
-            .nav-btn.active { box-shadow: none; border-top: 3px solid white; border-radius: 0; }
-            
-            .main-content { margin-bottom: calc(70px + env(safe-area-inset-bottom)); width: 100%; overflow-x: hidden; overflow-y: hidden; } 
-            .top-header { padding: 1rem 1.25rem; width: 100%; }
-            .top-header h1 { font-size: 1.25rem; max-width: 60%; word-break: break-word; line-height: 1.1; }
-            .header-actions { gap: 0.5rem; }
-            .header-btn { width: 38px; height: 38px; font-size: 1rem; }
-            
-            .app-section { padding: 1.25rem; width: 100%; }
-            
-            .stats-bar { flex-direction: column; margin-bottom: 1.5rem; width: 100%; }
-            .stat-segment { border-right: none; border-bottom: 1px solid var(--border); padding: 1rem; }
-            .stat-segment:last-child { border-bottom: none; }
-            
-            .crud-create-panel { padding: 1.25rem; width: 100%; }
-            .crud-input-row { flex-direction: column; gap: 0.75rem; width: 100%; }
-            .crud-input-row input, .crud-input-row select, .btn-create { width: 100%; max-width: 100%; }
-            .btn-create { padding: 0.85rem; justify-content: center; }
+.nav-footer-item{ margin-top:6px; }
 
-            .crud-task-view { flex-wrap: wrap; gap: 1rem; padding: 1rem; width: 100%; }
-            .chk-box { margin-top: 0.2rem; } 
-            .crud-actions { width: 100%; justify-content: flex-end; padding-top: 0.75rem; border-top: 1px solid var(--border); opacity: 1; }
+.theme-switch-row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px; border-radius: var(--radius-sm);
+  background: var(--bg-surface-alt);
+  margin-top:8px;
+}
+.theme-switch-row span{ font-size:13px; font-weight:600; color: var(--text-secondary); display:flex; align-items:center; gap:8px; }
+.theme-toggle{
+  position:relative; width:46px; height:26px; border-radius:999px;
+  background: var(--bg-inset); border:1px solid var(--border-strong);
+  cursor:pointer; flex-shrink:0;
+  transition: background .3s var(--ease-smooth);
+}
+.theme-toggle .knob{
+  position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
+  background: var(--color-primary);
+  display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px;
+  transition: transform .35s var(--ease-spring), background .3s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] .theme-toggle .knob{ transform: translateX(20px); background: var(--color-secondary); }
 
-            .crud-task-edit { flex-direction: column; align-items: stretch; padding: 1rem; width: 100%; }
-            .crud-task-edit input, .crud-task-edit select { width: 100%; }
-            .edit-controls { justify-content: flex-end; width: 100%; }
-            .btn-save, .btn-cancel { flex: 1; text-align: center; }
-            
-            .pomodoro-box-new { padding: 1.5rem 1rem; box-shadow: none; border: none; background: transparent; max-width: 100%; }
-            .pomo-subtitle { margin-bottom: 1.5rem; }
-            .pomo-timer-wrapper-new { width: 250px; height: 250px; margin-bottom: 2.5rem; }
-            .time-display-new { font-size: 3.8rem; }
-            .pomo-controls-new { gap: 3.5rem; }
-            .pomo-circle-btn { width: 64px; height: 64px; font-size: 1.2rem; }
+/* ---- Theme wipe transition overlay ---- */
+#theme-wipe{
+  position:fixed; inset:0; z-index:9999; pointer-events:none;
+  background: var(--color-primary);
+  clip-path: circle(0% at var(--wipe-x, 50%) var(--wipe-y, 50%));
+}
+#theme-wipe.animate{
+  animation: themeWipe .65s var(--ease-smooth) forwards;
+}
+@keyframes themeWipe{
+  0%{ clip-path: circle(0% at var(--wipe-x,50%) var(--wipe-y,50%)); opacity:0.85; }
+  60%{ opacity:0.5; }
+  100%{ clip-path: circle(140% at var(--wipe-x,50%) var(--wipe-y,50%)); opacity:0; }
+}
 
-            .growth-header { margin-bottom: 1.5rem; width: 100%; }
-            .growth-header h2 { font-size: 1.5rem; }
-            .growth-grid { display: flex; flex-direction: column; gap: 1.25rem; width: 100%; }
-            .growth-card { padding: 1.25rem; width: 100%; box-sizing: border-box; }
-            .chart-container-circle { height: 200px; width: 100%; }
-            .chart-container { height: 200px; width: 100%; }
-            
-            #toast-container { top: 20px; left: 50%; transform: translateX(-50%); right: auto; width: 90%; align-items: center; }
-            .toast { width: 100%; transform: translateY(-120%); } 
-            .toast.show { transform: translateY(0); }
-        }
+/* ---- Main column ---- */
+#main-col{
+  display:flex; flex-direction:column;
+  height:100vh; /* fallback */
+  height:100dvh;
+  overflow:hidden;
+  min-width:0;
+}
+#topbar{
+  height: var(--topbar-h); flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 28px; border-bottom:1px solid var(--border-color);
+  background: var(--bg-surface);
+}
+#topbar > div:first-child{ min-width:0; }
+.topbar-title{
+  font-family:var(--font-display); font-weight:700; font-size:21px; letter-spacing:-0.02em;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.topbar-sub{ font-size:12.5px; color: var(--text-tertiary); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.topbar-actions{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
 
-        /* =========================================
-           LOGIN OVERLAY & SETTINGS
-           ========================================= */
-        #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #030914; z-index: 9999; display: flex; transition: opacity 0.4s var(--smooth-curve); }
-        #auth-overlay * { font-family: 'Bricolage Grotesque', sans-serif; }
-        .split-container { display: flex; width: 100%; height: 100%; }
-        .interface-panel { width: 450px; height: 100%; background: #040d1a; border-right: 1px solid rgba(0, 255, 242, 0.15); box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; justify-content: center; padding: 60px; z-index: 10; position: relative; }
-        .visual-window { flex: 1; height: 100%; position: relative; background-image: url('https://images.unsplash.com/photo-1682687220063-4742bd7fd538?q=80&w=1600&auto=format&fit=crop'); background-size: cover; background-position: center; }
-        .god-rays { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%); mix-blend-mode: overlay; pointer-events: none; }
-        .form-slider { position: relative; width: 100%; height: 380px; overflow: hidden; }
-        .brand { font-size: 13px; font-weight: 700; letter-spacing: 3px; color: #00fff2; text-transform: uppercase; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0, 255, 242, 0.4); }
-        .interface-panel h2 { color: #ffffff; font-size: 32px; font-weight: 300; margin-bottom: 40px; letter-spacing: -0.5px; }
-        .field-group { position: relative; margin-bottom: 32px; width: 100%; }
-        .field-group input { width: 100%; padding: 12px 0; background: transparent; border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.2); outline: none; color: #ffffff; font-size: 16px; transition: all 0.3s ease; }
-        .field-group label { position: absolute; left: 0; top: 12px; color: rgba(255, 255, 255, 0.4); pointer-events: none; transition: all 0.3s ease; font-size: 15px; }
-        .field-group input:focus, .field-group input:valid { border-bottom-color: #00fff2; box-shadow: 0 1px 0 #00fff2; }
-        .field-group input:focus ~ label, .field-group input:valid ~ label { top: -16px; font-size: 12px; color: #00fff2; letter-spacing: 1px; text-transform: uppercase; }
-        .action-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; width: 100%; }
-        .btn-prime { padding: 14px 34px; background: #00fff2; border: none; border-radius: 4px; color: #040d1a; width: 100%; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s var(--smooth-curve); box-shadow: 0 4px 20px rgba(0, 255, 242, 0.2); }
-        .btn-prime:hover { background: #ffffff; box-shadow: 0 4px 25px rgba(255, 255, 255, 0.3); transform: translateY(-1px); }
-        .btn-prime:active { transform: scale(0.95); }
-        .bubble-space { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .bubble { position: absolute; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 50%; bottom: -50px; animation: floatUp 12s infinite linear; }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(0.8); opacity: 0; } 5% { opacity: 0.4; } 90% { opacity: 0.4; } 100% { transform: translateY(-110vh) translateX(60px) scale(1.2); opacity: 0; } }
-        @media (max-width: 900px) { .interface-panel { width: 100%; padding: 40px; background: rgba(4, 13, 26, 0.9); } .visual-window { position: absolute; width: 100%; height: 100%; z-index: 1; } }
+.icon-btn{
+  width:38px; height:38px; border-radius:11px; border:1px solid var(--border-color);
+  background: var(--bg-surface-alt); color: var(--text-secondary);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px;
+  transition: transform .15s var(--ease-smooth), background .2s var(--ease-smooth), color .2s;
+}
+.icon-btn:hover{ background: var(--bg-inset); color: var(--text-primary); }
+.icon-btn:active{ transform: scale(0.9); }
 
-        .settings-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(3px); z-index: 99998; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-        .settings-backdrop.open { opacity: 1; pointer-events: auto; }
-        .settings-sidebar { position: fixed; top: 0; right: -450px; width: 400px; max-width: 100%; height: 100%; background: var(--bg-surface); border-left: 1px solid var(--border); box-shadow: -10px 0 40px var(--shadow); z-index: 99999; transition: right 0.4s var(--smooth-curve); display: flex; flex-direction: column; overflow-y: auto; }
-        .settings-sidebar.open { right: 0; }
-        .settings-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .settings-header h2 { margin: 0; font-size: 1.5rem; color: var(--text-main); }
-        .close-settings { background: transparent; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; transition: all 0.2s var(--spring-curve); }
-        .close-settings:hover { color: var(--danger); transform: rotate(90deg); }
-        .settings-content { padding: 2rem; flex: 1; display: flex; flex-direction: column; gap: 2rem; }
-        .settings-section { display: flex; flex-direction: column; gap: 1rem; }
-        .settings-section h3 { font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.25rem; font-weight: 600; }
-        .settings-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem; }
-        .settings-input { padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-size: 1rem; transition: border-color 0.3s; }
-        .settings-input:focus { border-color: var(--primary); }
-        .setting-btn { padding: 0.75rem 1rem; border-radius: 8px; background: var(--bg-body); border: 1px solid var(--border); color: var(--text-main); cursor: pointer; transition: all 0.2s var(--smooth-curve); text-align: left; display: flex; align-items: center; gap: 0.75rem; font-weight: 500; font-size: 1rem;}
-        .setting-btn.disabled { opacity: 0.5; cursor: not-allowed; background: var(--bg-body) !important; border-color: var(--border) !important; transform: none !important;}
-        .setting-btn:not(.disabled):hover { background: var(--border); transform: translateX(4px); }
-        .setting-btn:not(.disabled):active { transform: scale(0.95); }
-        .setting-btn.danger { color: var(--danger); }
-        .setting-btn.danger:not(.disabled):hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); }
-        .settings-footer { padding: 1.5rem 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
-        
-        /* =========================================
-           CUSTOM TOAST NOTIFICATIONS & MODALS
-           ========================================= */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 100000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: var(--bg-surface); color: var(--text-main); padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 12px; font-weight: 500; transform: translateX(120%); transition: transform 0.4s var(--spring-curve), opacity 0.4s ease; opacity: 0; pointer-events: auto; }
-        .toast.show { transform: translateX(0); opacity: 1; }
-        .toast.error { border-left-color: var(--danger); }
-        .toast.success { border-left-color: var(--success); }
-        .toast i { font-size: 1.3rem; }
+.avatar-btn{
+  width:38px; height:38px; border-radius:50%; cursor:pointer; border:2px solid transparent;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:14px;
+  transition: transform .15s var(--ease-smooth);
+}
+.avatar-btn:active{ transform: scale(0.9); }
 
-        #confirm-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 100001; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-        #confirm-overlay.show { opacity: 1; pointer-events: auto; }
-        .confirm-box { background: var(--bg-surface); padding: 2.5rem 2rem; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s var(--spring-curve); border: 1px solid var(--border); }
-        #confirm-overlay.show .confirm-box { transform: scale(1); }
-        .confirm-icon { font-size: 3rem; color: var(--danger); margin-bottom: 1rem; }
-        .confirm-msg { font-size: 1.1rem; color: var(--text-main); margin-bottom: 2rem; line-height: 1.5; font-weight: 500;}
-        .confirm-actions { display: flex; gap: 1rem; justify-content: center; }
-        .confirm-btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s var(--spring-curve); border: none; font-size: 1rem; flex: 1;}
-        .btn-yes { background: var(--danger); color: white; }
-        .btn-yes:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);}
-        .btn-yes:active { transform: scale(0.95); }
-        .btn-no { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); }
-        .btn-no:hover { background: var(--border); transform: translateY(-2px); }
-        .btn-no:active { transform: scale(0.95); }
-    </style>
+#content-scroll{
+  flex:1; overflow-y:auto; overflow-x:hidden;
+  padding: 28px 32px 100px;
+}
+.view{ display:none; animation: viewIn .45s var(--ease-smooth) both; }
+.view.active{ display:block; }
+@keyframes viewIn{
+  from{ opacity:0; transform: translateY(10px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
+/* ---- Mobile bottom nav ---- */
+#mobile-nav{ display:none; }
+
+@media (max-width: 768px){
+  #app-shell{ grid-template-columns: 1fr; }
+  #side-nav{ display:none; }
+  #content-scroll{ padding: 18px 16px 96px; }
+  #topbar{ padding:0 16px; }
+  .topbar-title{ font-size:18px; }
+  .topbar-actions{ gap:8px; }
+
+  #mobile-nav{
+    display:flex; position:fixed; bottom:0; left:0; right:0; z-index:500;
+    background: var(--bg-surface); border-top:1px solid var(--border-color);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+    justify-content:space-around;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+  }
+  .mnav-item{
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    background:none; border:none; color: var(--text-tertiary);
+    font-size:10.5px; font-weight:600; padding:6px 10px; border-radius:12px; cursor:pointer;
+    transition: color .2s var(--ease-smooth), transform .15s var(--ease-smooth);
+  }
+  .mnav-item i{ font-size:17px; }
+  .mnav-item.active{ color: var(--color-primary); }
+  .mnav-item:active{ transform: scale(0.9); }
+}
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+#toast-container{
+  position:fixed; top:18px; left:50%; transform:translateX(-50%);
+  z-index:10000; display:flex; flex-direction:column; gap:10px; align-items:center;
+  pointer-events:none;
+}
+.toast{
+  display:flex; align-items:center; gap:10px;
+  padding:13px 18px; border-radius: 14px;
+  background: var(--bg-surface); color: var(--text-primary);
+  border:1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  font-size:13.5px; font-weight:600;
+  min-width:240px; max-width:400px;
+  pointer-events:auto;
+  animation: toastIn .5s var(--ease-spring) both;
+}
+.toast.leaving{ animation: toastOut .35s var(--ease-smooth) forwards; }
+@keyframes toastIn{
+  from{ opacity:0; transform: translateY(-30px) scale(0.9); }
+  to{ opacity:1; transform: translateY(0) scale(1); }
+}
+@keyframes toastOut{
+  to{ opacity:0; transform: translateY(-20px) scale(0.92); }
+}
+.toast .t-icon{
+  width:28px; height:28px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:13px; color:#fff;
+}
+.toast.success .t-icon{ background: var(--color-success); }
+.toast.error .t-icon{ background: var(--color-danger); }
+.toast.info .t-icon{ background: var(--color-secondary); }
+.toast .t-msg{ flex:1; line-height:1.3; }
+.toast .t-close{
+  background:none; border:none; color: var(--text-tertiary); cursor:pointer; font-size:12px; padding:4px;
+}
+
+/* ============================================================
+   CONFIRMATION MODAL
+   ============================================================ */
+#modal-overlay{
+  position:fixed; inset:0; z-index:8000;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none;
+  transition: opacity .3s var(--ease-smooth);
+  padding:20px;
+}
+#modal-overlay.show{ opacity:1; pointer-events:auto; }
+.modal-card{
+  width:min(400px, 100%);
+  background: var(--bg-surface);
+  border:1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding:28px;
+  box-shadow: var(--shadow-lg);
+  transform: scale(0.85) translateY(20px);
+  transition: transform .4s var(--ease-spring);
+}
+#modal-overlay.show .modal-card{ transform: scale(1) translateY(0); }
+.modal-icon{
+  width:52px; height:52px; border-radius:16px;
+  background: rgba(var(--color-danger-rgb), 0.12); color: var(--color-danger);
+  display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:16px;
+}
+.modal-icon.neutral{ background: rgba(var(--color-secondary-rgb),0.12); color: var(--color-secondary); }
+.modal-title{ font-family:var(--font-display); font-weight:700; font-size:18px; margin-bottom:8px; }
+.modal-body{ font-size:13.5px; color: var(--text-secondary); line-height:1.55; margin-bottom:24px; }
+.modal-actions{ display:flex; gap:10px; justify-content:flex-end; }
+
+.btn{
+  padding:11px 18px; border-radius:12px; border:none; cursor:pointer;
+  font-weight:700; font-size:13.5px; font-family:inherit;
+  transition: transform .16s var(--ease-smooth), background .2s var(--ease-smooth), filter .2s, box-shadow .2s;
+}
+.btn:active{ transform: scale(0.94); }
+.btn-ghost{ background: var(--bg-surface-alt); color: var(--text-secondary); }
+.btn-ghost:hover{ background: var(--bg-inset); color:var(--text-primary); }
+.btn-primary{ background: var(--color-primary); color:#fff; box-shadow: 0 8px 18px rgba(var(--color-primary-rgb),0.28); }
+.btn-primary:hover{ filter:brightness(1.06); }
+.btn-danger{ background: var(--color-danger); color:#fff; box-shadow: 0 8px 18px rgba(var(--color-danger-rgb),0.28); }
+.btn-danger:hover{ filter:brightness(1.06); }
+.btn-secondary{ background: var(--color-secondary); color:#fff; box-shadow: 0 8px 18px rgba(var(--color-secondary-rgb),0.28); }
+
+/* ============================================================
+   SETTINGS SIDEBAR (slides from right)
+   ============================================================ */
+#settings-overlay{
+  position:fixed; inset:0; z-index:7000;
+  background: var(--overlay-bg);
+  opacity:0; pointer-events:none;
+  transition: opacity .35s var(--ease-smooth);
+}
+#settings-overlay.show{ opacity:1; pointer-events:auto; }
+
+#settings-panel{
+  position:fixed; top:0; right:0; bottom:0; z-index:7001;
+  width:min(400px, 92vw);
+  background: var(--bg-surface);
+  border-left:1px solid var(--border-color);
+  box-shadow: -20px 0 60px rgba(0,0,0,0.15);
+  transform: translateX(100%);
+  transition: transform .45s var(--ease-smooth);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+#settings-overlay.show #settings-panel{ transform: translateX(0); }
+
+.settings-head{
+  padding:22px 24px; border-bottom:1px solid var(--border-color);
+  display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+}
+.settings-head h2{ font-family:var(--font-display); font-weight:700; font-size:19px; }
+.settings-body{ flex:1; overflow-y:auto; padding:22px 24px 40px; }
+
+.settings-section{ margin-bottom:30px; }
+.settings-section-title{
+  font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em;
+  color: var(--text-tertiary); margin-bottom:14px;
+}
+.field-group{ margin-bottom:14px; }
+.field-group label{ display:block; font-size:12.5px; font-weight:600; color: var(--text-secondary); margin-bottom:6px; }
+.field-group input{
+  width:100%; padding:11px 13px; border-radius:10px;
+  border:1px solid var(--border-strong); background: var(--bg-canvas); color: var(--text-primary);
+  font-size:13.5px; transition: border-color .2s, box-shadow .2s;
+}
+.field-group input:focus{ outline:none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb),0.15); }
+
+.settings-info-row{
+  display:flex; justify-content:space-between; padding:9px 0;
+  font-size:13px; border-bottom:1px solid var(--border-color);
+}
+.settings-info-row:last-child{ border-bottom:none; }
+.settings-info-row span:first-child{ color: var(--text-tertiary); }
+.settings-info-row span:last-child{ font-weight:600; }
+
+.export-lock-box{
+  background: var(--bg-surface-alt); border:1px dashed var(--border-strong);
+  border-radius:14px; padding:16px; text-align:center; margin-bottom:12px;
+}
+.export-lock-box i{ font-size:20px; color: var(--text-tertiary); margin-bottom:8px; display:block; }
+.export-lock-box .lock-msg{ font-size:12.5px; color: var(--text-secondary); line-height:1.5; }
+.export-lock-box .lock-date{ font-weight:700; color: var(--color-secondary); }
+
+.danger-zone{
+  border:1px solid rgba(var(--color-danger-rgb),0.3);
+  background: rgba(var(--color-danger-rgb),0.05);
+  border-radius:14px; padding:16px;
+}
+.danger-zone p{ font-size:12.5px; color: var(--text-secondary); margin-bottom:12px; line-height:1.5; }
+
+.btn-block{ width:100%; }
+
+.about-box{ font-size:13px; color: var(--text-secondary); line-height:1.7; }
+.about-box strong{ color: var(--text-primary); }
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+.stats-bar{
+  /* minmax(0,1fr) — NOT bare 1fr — is required so columns can shrink
+     below their content's min-content width. Bare 1fr tracks (and flex
+     children without min-width:0) refuse to shrink past their content,
+     which is what was pushing "Completed" etc. past the card edge on
+     narrow phones. */
+  display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:16px; margin-bottom:24px;
+}
+@media (max-width:900px){ .stats-bar{ grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; } }
+
+.stat-card{
+  background: var(--bg-surface); border:1px solid var(--border-color);
+  border-radius: var(--radius-md); padding:18px;
+  display:flex; align-items:center; gap:14px;
+  box-shadow: var(--shadow-sm);
+  min-width:0; /* allow this grid item to actually shrink to its track width */
+  transition: transform .3s var(--ease-smooth), box-shadow .3s var(--ease-smooth);
+}
+.stat-card:hover{ transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.stat-icon{
+  width:44px; height:44px; border-radius:14px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:18px; color:#fff;
+}
+.stat-icon.teal{ background: var(--color-primary); }
+.stat-icon.green{ background: var(--color-success); }
+.stat-icon.blue{ background: var(--color-secondary); }
+.stat-icon.amber{ background: #f59e0b; }
+.stat-meta{ min-width:0; } /* flex child also needs min-width:0 to allow text to wrap instead of overflow */
+.stat-value{ font-family:var(--font-display); font-size:26px; font-weight:800; line-height:1; }
+.stat-label{ font-size:12px; color: var(--text-tertiary); margin-top:5px; font-weight:600; overflow-wrap:break-word; }
+
+@media (max-width:400px){
+  .stat-card{ padding:14px; gap:10px; }
+  .stat-icon{ width:36px; height:36px; font-size:15px; border-radius:11px; }
+  .stat-value{ font-size:21px; }
+  .stat-label{ font-size:10.5px; }
+
+  /* Three topbar icons now need to fit comfortably on very narrow phones */
+  .topbar-actions{ gap:6px; }
+  .icon-btn, .avatar-btn{ width:34px; height:34px; font-size:13px; }
+}
+
+.dash-grid{ display:grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); gap:20px; }
+@media (max-width:900px){ .dash-grid{ grid-template-columns: minmax(0,1fr); } }
+
+.panel{
+  background: var(--bg-surface); border:1px solid var(--border-color);
+  border-radius: var(--radius-lg); padding:22px;
+  box-shadow: var(--shadow-sm);
+  position:relative;
+  /* Signature corner-notch echoing the timer ring motif */
+}
+.panel::before{
+  content:''; position:absolute; top:0; left:0; width:26px; height:26px;
+  border-top:2px solid rgba(var(--color-primary-rgb),0.35);
+  border-left:2px solid rgba(var(--color-primary-rgb),0.35);
+  border-radius: var(--radius-lg) 0 0 0;
+  pointer-events:none;
+}
+.panel-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.panel-head h3{ font-family:var(--font-display); font-size:15.5px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.panel-head h3 i{ color: var(--color-primary); font-size:14px; }
+.panel-tag{ font-size:11px; font-weight:600; color: var(--text-tertiary); background: var(--bg-surface-alt); padding:4px 9px; border-radius:999px; }
+
+.upnext-list{ display:flex; flex-direction:column; gap:10px; }
+.upnext-item{
+  display:flex; align-items:center; gap:12px; padding:12px 14px;
+  border-radius:12px; background: var(--bg-surface-alt);
+  border-left:3px solid var(--color-low);
+  animation: rowIn .4s var(--ease-smooth) both;
+}
+.upnext-item.priority-high{ border-left-color: var(--color-high); }
+.upnext-item.priority-medium{ border-left-color: var(--color-medium); }
+.upnext-item.priority-low{ border-left-color: var(--color-low); }
+.upnext-rank{ font-family:var(--font-display); font-weight:800; font-size:13px; color: var(--text-tertiary); width:18px; }
+.upnext-text{ flex:1; min-width:0; font-size:13.5px; font-weight:600; overflow-wrap:break-word; }
+.priority-badge{
+  font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+  padding:4px 9px; border-radius:999px; flex-shrink:0;
+}
+.priority-badge.high{ background: rgba(var(--color-danger-rgb),0.14); color: var(--color-danger); }
+.priority-badge.medium{ background: rgba(245,158,11,0.16); color:#b45309; }
+[data-theme="dark"] .priority-badge.medium{ color:#f59e0b; }
+.priority-badge.low{ background: rgba(100,116,139,0.16); color: #475569; }
+[data-theme="dark"] .priority-badge.low{ color:#94a3b8; }
+
+.streak-row{ display:flex; align-items:center; justify-content:center; gap:20px; padding:12px 0 6px; }
+.streak-block{ text-align:center; }
+.streak-num{ font-family:var(--font-display); font-size:40px; font-weight:800; color: var(--color-primary); line-height:1; }
+.streak-num.best{ color: var(--color-secondary); }
+.streak-label{ font-size:11.5px; color: var(--text-tertiary); font-weight:600; margin-top:6px; }
+.streak-divider{ width:1px; height:44px; background: var(--border-strong); }
+.streak-hint{ font-size:12px; color: var(--text-tertiary); text-align:center; margin-top:14px; line-height:1.5; }
+
+.empty-state{ display:none; text-align:center; padding:36px 10px; color: var(--text-tertiary); }
+.empty-state.show{ display:block; }
+.empty-state i{ font-size:26px; margin-bottom:10px; display:block; opacity:0.5; }
+.empty-state p{ font-size:13px; }
+
+@keyframes rowIn{ from{ opacity:0; transform: translateX(-8px);} to{opacity:1; transform:translateX(0);} }
+
+/* ============================================================
+   TASKS VIEW
+   ============================================================ */
+.task-input-row{
+  display:flex; gap:10px; margin-bottom:26px; flex-wrap:wrap;
+}
+.task-input-row input[type="text"]{
+  flex:1; min-width:200px; padding:13px 16px; border-radius:12px;
+  border:1px solid var(--border-strong); background: var(--bg-surface); color: var(--text-primary);
+  font-size:14px; transition: border-color .2s, box-shadow .2s;
+}
+.task-input-row input:focus{ outline:none; border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb),0.14); }
+.task-input-row select{
+  padding:13px 14px; border-radius:12px; border:1px solid var(--border-strong);
+  background: var(--bg-surface); color: var(--text-primary); font-size:13.5px; font-weight:600; cursor:pointer;
+}
+
+.task-section{ margin-bottom:28px; }
+.task-section-head{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.task-section-head h3{ font-family:var(--font-display); font-size:15.5px; font-weight:700; }
+.task-count{
+  font-size:11.5px; font-weight:700; background: var(--bg-surface-alt); color: var(--text-secondary);
+  padding:3px 10px; border-radius:999px;
+}
+
+.task-list{ display:flex; flex-direction:column; gap:10px; }
+.task-item{
+  display:flex; align-items:center; gap:14px;
+  background: var(--bg-surface); border:1px solid var(--border-color);
+  border-radius: var(--radius-md); padding:14px 16px;
+  box-shadow: var(--shadow-sm);
+  animation: rowIn .35s var(--ease-smooth) both;
+  transition: transform .2s var(--ease-smooth), box-shadow .2s var(--ease-smooth), opacity .3s;
+}
+.task-item:hover{ box-shadow: var(--shadow-md); }
+.task-item.completed{ opacity:0.62; }
+.task-item.removing{ animation: taskOut .35s var(--ease-smooth) forwards; }
+@keyframes taskOut{ to{ opacity:0; transform: scale(0.92) translateX(30px); margin-bottom:-60px; height:0; padding-top:0; padding-bottom:0; } }
+
+.task-checkbox{
+  width:24px; height:24px; border-radius:50%; flex-shrink:0; cursor:pointer;
+  border:2px solid var(--border-strong); background:transparent;
+  display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px;
+  transition: all .3s var(--ease-spring);
+}
+.task-checkbox:hover{ border-color: var(--color-primary); }
+.task-checkbox.checked{ background: var(--color-success); border-color: var(--color-success); }
+
+.task-priority-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.task-priority-dot.high{ background: var(--color-high); }
+.task-priority-dot.medium{ background: var(--color-medium); }
+.task-priority-dot.low{ background: var(--color-low); }
+
+.task-text{ flex:1; min-width:0; font-size:14px; font-weight:600; word-break:break-word; }
+.task-item.completed .task-text{ text-decoration: line-through; color: var(--text-tertiary); }
+.task-text-input{
+  flex:1; font-size:14px; font-weight:600; padding:6px 10px; border-radius:8px;
+  border:1px solid var(--color-primary); background: var(--bg-canvas); color: var(--text-primary);
+}
+
+.task-actions{ display:flex; gap:6px; flex-shrink:0; }
+.task-action-btn{
+  width:32px; height:32px; border-radius:9px; border:none; cursor:pointer;
+  background: var(--bg-surface-alt); color: var(--text-secondary); font-size:12.5px;
+  display:flex; align-items:center; justify-content:center;
+  transition: transform .15s var(--ease-smooth), background .2s, color .2s;
+}
+.task-action-btn:hover{ background: var(--bg-inset); }
+.task-action-btn:active{ transform: scale(0.88); }
+.task-action-btn.edit:hover{ color: var(--color-secondary); }
+.task-action-btn.delete:hover{ color: var(--color-danger); }
+.task-action-btn.save{ background: var(--color-success); color:#fff; }
+
+/* ============================================================
+   TIMER VIEW
+   ============================================================ */
+.timer-wrap{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding: 20px 0 40px; max-width:520px; margin:0 auto;
+}
+.timer-mode-switch{
+  display:flex; gap:6px; background: var(--bg-surface-alt); padding:5px; border-radius:999px; margin-bottom:38px;
+}
+.mode-btn{
+  padding:9px 20px; border-radius:999px; border:none; background:transparent; cursor:pointer;
+  font-weight:700; font-size:13px; color: var(--text-secondary);
+  transition: background .3s var(--ease-smooth), color .3s var(--ease-smooth);
+}
+.mode-btn.active{ background: var(--color-primary); color:#fff; box-shadow: 0 6px 14px rgba(var(--color-primary-rgb),0.3); }
+.mode-btn[data-mode="break"].active{ background: var(--color-success); box-shadow: 0 6px 14px rgba(var(--color-success-rgb),0.3); }
+
+.timer-ring-wrap{ position:relative; width:320px; height:320px; max-width:80vw; max-height:80vw; }
+.timer-svg{ width:100%; height:100%; transform: rotate(-90deg); }
+.ring-track{ fill:none; stroke: var(--bg-surface-alt); stroke-width:18; }
+.ring-progress{
+  fill:none; stroke: var(--color-primary); stroke-width:18; stroke-linecap:round;
+  stroke-dasharray: 879.6; stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1s linear, stroke .4s var(--ease-smooth);
+}
+.timer-ring-wrap.break .ring-progress{ stroke: var(--color-success); }
+.timer-ring-wrap.running .ring-progress{
+  animation: ringGlow 2.4s ease-in-out infinite;
+}
+@keyframes ringGlow{
+  0%,100%{ filter: drop-shadow(0 0 4px rgba(var(--color-primary-rgb),0.35)); }
+  50%{ filter: drop-shadow(0 0 22px rgba(var(--color-primary-rgb),0.85)); }
+}
+.timer-ring-wrap.break.running .ring-progress{ animation-name: ringGlowGreen; }
+@keyframes ringGlowGreen{
+  0%,100%{ filter: drop-shadow(0 0 4px rgba(var(--color-success-rgb),0.35)); }
+  50%{ filter: drop-shadow(0 0 22px rgba(var(--color-success-rgb),0.85)); }
+}
+
+.timer-center{
+  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.timer-time{ font-family:var(--font-display); font-size:56px; font-weight:800; letter-spacing:-0.02em; font-variant-numeric: tabular-nums; }
+.timer-mode-label{ font-size:13px; font-weight:600; color: var(--text-tertiary); margin-top:6px; text-transform:uppercase; letter-spacing:0.05em; }
+
+.timer-controls{ display:flex; align-items:center; gap:20px; margin-top:40px; }
+.timer-btn{
+  border:none; border-radius:50%; cursor:pointer; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  transition: transform .18s var(--ease-smooth), box-shadow .2s var(--ease-smooth), filter .2s;
+}
+.timer-btn.primary{
+  width:76px; height:76px; font-size:26px; background: var(--color-primary);
+  box-shadow: 0 14px 30px rgba(var(--color-primary-rgb),0.4);
+}
+.timer-btn.secondary{
+  width:54px; height:54px; font-size:16px; background: var(--bg-surface-alt); color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+}
+.timer-btn:hover{ filter:brightness(1.08); }
+.timer-btn:active{ transform: scale(0.88); }
+.timer-session-count{ margin-top:28px; font-size:13px; color: var(--text-tertiary); }
+.timer-session-count strong{ color: var(--text-primary); font-family:var(--font-display); }
+
+@media (max-width:768px){
+  /* Compact the Focus Timer so every element fits in one screen with
+     no scrolling. Sized off dvh (not vh), so it stays correct even as
+     the mobile browser's address bar shows or hides mid-session. */
+  #view-timer.active{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    /* 114px = the 18px top + 96px bottom padding #content-scroll reserves
+       on mobile (the bottom pad clears the fixed bottom nav bar). */
+    min-height: calc(100dvh - var(--topbar-h) - 114px);
+  }
+  .timer-wrap{ padding: 2px 0 4px; }
+  .timer-mode-switch{ margin-bottom: clamp(12px, 3dvh, 30px); }
+  .mode-btn{ padding:7px 16px; font-size:12px; }
+  .timer-ring-wrap{
+    width: clamp(160px, 40dvh, 300px);
+    height: clamp(160px, 40dvh, 300px);
+    max-width:62vw; max-height:62vw;
+  }
+  .timer-time{ font-size: clamp(30px, 8.5dvh, 52px); }
+  .timer-mode-label{ font-size:11px; margin-top:4px; }
+  .timer-controls{ gap: clamp(12px, 4vw, 20px); margin-top: clamp(12px, 3dvh, 32px); }
+  .timer-btn.primary{ width:62px; height:62px; font-size:21px; }
+  .timer-btn.secondary{ width:44px; height:44px; font-size:13px; }
+  .timer-session-count{ margin-top: clamp(8px, 2dvh, 22px); font-size:12px; }
+}
+
+/* ============================================================
+   ANALYTICS VIEW
+   ============================================================ */
+.analytics-grid{ display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:20px; }
+@media (max-width:900px){ .analytics-grid{ grid-template-columns:minmax(0,1fr); } }
+.chart-panel.wide{ grid-column: 1 / -1; }
+.streak-panel.wide{ grid-column: 1 / -1; }
+.chart-box{ position:relative; height:240px; }
+.chart-legend-row{ display:flex; gap:20px; justify-content:center; margin-top:14px; font-size:12.5px; color: var(--text-secondary); font-weight:600; }
+.chart-legend-row .dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; }
+.chart-legend-row .dot.teal{ background: var(--color-primary); }
+.chart-legend-row .dot.blue{ background: var(--color-secondary); }
+</style>
 </head>
 <body>
 
-    <div id="theme-wipe"></div>
-    <div id="toast-container"></div>
+<!-- ============================================================
+     LOGIN SCREEN — full-screen restricted overlay
+     ============================================================ -->
+<div id="login-screen">
+  <div class="godray"></div>
+  <div class="bubble-field" id="bubble-field"></div>
 
-    <!-- CUSTOM CONFIRM MODAL -->
-    <div id="confirm-overlay">
-        <div class="confirm-box">
-            <i class="fa-solid fa-triangle-exclamation confirm-icon"></i>
-            <div class="confirm-msg" id="confirm-msg">Are you sure?</div>
-            <div class="confirm-actions">
-                <button class="confirm-btn btn-no" onclick="closeConfirm()">Cancel</button>
-                <button class="confirm-btn btn-yes" onclick="executeConfirm()">Yes, Delete</button>
-            </div>
-        </div>
+  <form class="login-card" id="login-form" autocomplete="off">
+    <div class="login-mark"><i class="fa-solid fa-circle-nodes"></i></div>
+    <h1 class="login-title">Proxima Workspace</h1>
+    <p class="login-sub">Sign in to access your focus space</p>
+
+    <div class="login-error hidden" id="login-error">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span id="login-error-text">Invalid email or password.</span>
     </div>
 
-    <!-- RESTRICTED LOGIN SCREEN -->
-    <div id="auth-overlay">
-        <div class="split-container" id="splitWrapper">
-            <div class="interface-panel">
-                <div class="brand">Proxima Workspace</div>
-                <div class="form-slider">
-                    <div class="form-block" style="width: 100%;">
-                        <h2>Log In</h2>
-                        <form onsubmit="handleLogin(event)" autocomplete="off">
-                            <div class="field-group">
-                                <input type="email" required id="logEmail">
-                                <label>Email Address</label>
-                            </div>
-                            <div class="field-group">
-                                <input type="password" required id="logPass">
-                                <label>Password</label>
-                            </div>
-                            <div class="action-row">
-                                <button type="submit" class="btn-prime">Secure Access</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="visual-window">
-                <div class="god-rays"></div>
-                <div class="bubble-space" id="bubbleSpace"></div>
-            </div>
-        </div>
+    <div class="login-field">
+      <label for="login-email">Email</label>
+      <div class="login-input-wrap">
+        <i class="fa-regular fa-envelope field-icon"></i>
+        <input type="email" id="login-email" placeholder="you@example.com" required>
+      </div>
     </div>
 
-    <!-- SETTINGS SIDEBAR -->
-    <div class="settings-backdrop" id="settingsBackdrop" onclick="toggleSettings()"></div>
-    <div class="settings-sidebar" id="settingsSidebar">
-        <div class="settings-header">
-            <h2>Settings</h2>
-            <button class="close-settings" onclick="toggleSettings()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="settings-content">
-            <div class="settings-section">
-                <h3>Security</h3>
-                <p class="settings-desc">Update your secure access password.</p>
-                <form id="pwd-form" onsubmit="changePassword(event)" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <input type="password" id="new-pass" class="settings-input" placeholder="Enter New Password" required>
-                    <button type="submit" class="btn-save" style="border:none;">Update Password</button>
-                </form>
-            </div>
-            <div class="settings-section">
-                <h3>Monthly Data Report</h3>
-                <p class="settings-desc">Export your complete, organized monthly performance data.</p>
-                <p class="settings-desc" id="download-info" style="font-size: 0.85rem; margin-top: -5px; margin-bottom: 0.75rem;"></p>
-                <button class="setting-btn" id="download-btn" onclick="downloadData()"><i class="fa-solid fa-download"></i> Download Report</button>
-            </div>
-            <div class="settings-section">
-                <h3>About Proxima</h3>
-                <div class="settings-desc" style="padding: 1rem; background: var(--bg-body); border-radius: 8px; border: 1px solid var(--border);">
-                    <strong>Proxima Workspace</strong> is a personal growth and productivity dashboard designed to help you track tasks, maintain focus with Pomodoro sessions, and visualize daily progress.
-                </div>
-            </div>
-            <div class="settings-section" style="margin-top: auto;">
-                <h3>Danger Zone</h3>
-                <p class="settings-desc">Permanently remove all tasks and statistics.</p>
-                <button class="setting-btn danger" onclick="clearAllData()"><i class="fa-solid fa-trash-can"></i> Clear All Existing Data</button>
-            </div>
-        </div>
-        <div class="settings-footer">Proxima Workspace Version 2.1.0</div>
+    <div class="login-field">
+      <label for="login-password">Password</label>
+      <div class="login-input-wrap">
+        <i class="fa-solid fa-lock field-icon"></i>
+        <input type="password" id="login-password" placeholder="••••••••••••" required>
+        <button type="button" class="login-toggle-eye" id="toggle-pw" aria-label="Show password">
+          <i class="fa-regular fa-eye"></i>
+        </button>
+      </div>
     </div>
 
-    <!-- MAIN APP: Navigation -->
-    <nav class="sidebar">
-        <div class="logo-area"><i class="fa-solid fa-leaf"></i> Proxima</div>
-        <div class="nav-menu">
-            <button class="nav-btn active" onclick="navTo('dashboard')"><i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span></button>
-            <button class="nav-btn" onclick="navTo('tasks')"><i class="fa-solid fa-list-check"></i> <span>Tasks</span></button>
-            <button class="nav-btn" onclick="navTo('pomodoro')"><i class="fa-solid fa-stopwatch"></i> <span>Focus</span></button>
-            <button class="nav-btn" onclick="navTo('analytics')"><i class="fa-solid fa-chart-line"></i> <span>Growth</span></button>
-            <button class="nav-btn" onclick="handleLogout()" style="margin-top: auto; color: var(--danger);"><i class="fa-solid fa-power-off"></i> <span>Log Out</span></button>
-        </div>
-    </nav>
+    <button type="submit" class="btn-login-submit">Enter Workspace</button>
 
-    <!-- MAIN APP: Workspace -->
-    <main class="main-content">
-        <header class="top-header">
-            <h1 id="page-title">Dashboard</h1>
-            <div class="header-actions">
-                <button class="header-btn" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fa-solid fa-moon" id="theme-icon"></i></button>
-                <button class="header-btn" onclick="toggleSettings()" aria-label="Profile Settings"><i class="fa-solid fa-user"></i></button>
+    <p class="login-hint">Restricted access &middot; single-user workspace</p>
+  </form>
+</div>
+
+<!-- App root -->
+<div id="app-root" class="app-hidden"></div>
+
+<!-- Toast container -->
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ============================================================
+     APP SHELL — hidden until login succeeds
+     ============================================================ -->
+<div id="app-shell" class="app-hidden">
+
+  <!-- Theme wipe transition layer -->
+  <div id="theme-wipe"></div>
+
+  <!-- ================= SIDE NAV (desktop) ================= -->
+  <nav id="side-nav">
+    <div class="nav-brand">
+      <div class="mark"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="word">Proxima<small>Workspace</small></div>
+    </div>
+
+    <button class="nav-item active" data-view="dashboard">
+      <i class="fa-solid fa-grip"></i> Dashboard
+    </button>
+    <button class="nav-item" data-view="tasks">
+      <i class="fa-solid fa-list-check"></i> Tasks
+      <span class="nav-dot" id="tasks-nav-dot"></span>
+    </button>
+    <button class="nav-item" data-view="timer">
+      <i class="fa-solid fa-stopwatch"></i> Focus Timer
+    </button>
+    <button class="nav-item" data-view="analytics">
+      <i class="fa-solid fa-chart-line"></i> Growth Analytics
+    </button>
+
+    <div class="nav-spacer"></div>
+
+    <div class="theme-switch-row">
+      <span><i class="fa-solid fa-circle-half-stroke"></i> Theme</span>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <span class="knob"><i class="fa-solid fa-moon"></i></span>
+      </button>
+    </div>
+
+    <button class="nav-item nav-footer-item" id="nav-logout">
+      <i class="fa-solid fa-right-from-bracket"></i> Log out
+    </button>
+  </nav>
+
+  <!-- ================= MAIN COLUMN ================= -->
+  <div id="main-col">
+
+    <header id="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-sub" id="topbar-sub">Your day at a glance</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="topbar-theme-btn" aria-label="Toggle dark mode">
+          <i class="fa-solid fa-circle-half-stroke"></i>
+        </button>
+        <button class="icon-btn" id="topbar-logout-btn" aria-label="Log out">
+          <i class="fa-solid fa-lock"></i>
+        </button>
+        <button class="avatar-btn" id="open-settings" aria-label="Open settings">HK</button>
+      </div>
+    </header>
+
+    <div id="content-scroll">
+
+      <!-- ========================= DASHBOARD VIEW ========================= -->
+      <section class="view active" id="view-dashboard">
+        <div class="stats-bar">
+          <div class="stat-card">
+            <div class="stat-icon teal"><i class="fa-solid fa-list-ul"></i></div>
+            <div class="stat-meta">
+              <div class="stat-value" id="stat-remaining">0</div>
+              <div class="stat-label">Tasks Remaining</div>
             </div>
-        </header>
-
-        <div class="content-scroll">
-            
-            <!-- 1. Dashboard -->
-            <section id="dashboard" class="app-section active section-fade">
-                <div class="card-surface stats-bar">
-                    <div class="stat-segment">
-                        <h3>Tasks Remaining</h3>
-                        <div class="stat-value" id="stat-pending">0</div>
-                    </div>
-                    <div class="stat-segment">
-                        <h3>Completed Tasks</h3>
-                        <div class="stat-value" style="color: var(--success);" id="stat-completed">0</div>
-                    </div>
-                    <div class="stat-segment">
-                        <h3>Focus Sessions</h3>
-                        <div class="stat-value" style="color: #f59e0b;" id="stat-sessions">0</div>
-                    </div>
-                </div>
-                <div class="card-surface up-next-container">
-                    <h2 class="up-next-header"><i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> Up Next</h2>
-                    <div class="dash-task-list" id="dashboard-task-list"></div>
-                </div>
-            </section>
-
-            <!-- 2. Tasks -->
-            <section id="tasks" class="app-section section-fade">
-                <div class="card-surface crud-create-panel">
-                    <h3>Create New Task</h3>
-                    <div class="crud-input-row">
-                        <input type="text" id="task-input" placeholder="What needs to be done?" onkeypress="if(event.key === 'Enter') addTask()">
-                        <select id="task-priority">
-                            <option value="low">Low Priority</option>
-                            <option value="medium" selected>Medium Priority</option>
-                            <option value="high">High Priority</option>
-                        </select>
-                        <button class="btn-create" onclick="addTask()"><i class="fa-solid fa-plus"></i> Add</button>
-                    </div>
-                </div>
-
-                <div class="task-group-header">
-                    <i class="fa-regular fa-clock"></i> Active Tasks 
-                    <span class="count-badge" id="active-count">0</span>
-                </div>
-                <div class="tasks-grid" id="pending-tasks-list"></div>
-
-                <div class="task-group-header" style="margin-top: 2rem;">
-                    <i class="fa-solid fa-check-double"></i> Completed 
-                    <span class="count-badge" id="completed-count">0</span>
-                </div>
-                <div class="tasks-grid" id="completed-tasks-list"></div>
-            </section>
-
-            <!-- 3. Pomodoro (CLEAN SINGLE VIEW) -->
-            <section id="pomodoro" class="app-section section-fade">
-                <div class="pomodoro-box-new" id="pomo-card">
-                    
-                    <div class="pomo-subtitle">
-                        <i class="fa-regular fa-circle" id="pomo-sub-icon" style="color: var(--primary); font-size: 0.8rem;"></i>
-                        <span id="pomo-mode-desc">Deep Work Session</span>
-                    </div>
-                    
-                    <div class="pomo-timer-wrapper-new" id="pomo-ring-container">
-                        <svg class="pomo-ring-new" viewBox="0 0 280 280">
-                            <circle class="pomo-ring-bg-new" cx="140" cy="140" r="120"></circle>
-                            <circle class="pomo-ring-progress-new" id="pomo-ring-progress" cx="140" cy="140" r="120"></circle>
-                        </svg>
-                        <div class="time-display-new" id="time-display">25:00</div>
-                    </div>
-                    
-                    <div class="pomo-controls-new">
-                        <div class="control-group">
-                            <button class="pomo-circle-btn" id="timer-btn" onclick="toggleTimer()">
-                                <i class="fa-solid fa-play" id="timer-btn-icon"></i>
-                            </button>
-                            <span class="control-label" id="timer-btn-text">Start</span>
-                        </div>
-                        <div class="control-group">
-                            <button class="pomo-circle-btn" onclick="resetTimer()" aria-label="Quit">
-                                <i class="fa-solid fa-square"></i>
-                            </button>
-                            <span class="control-label">Quit</span>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-
-            <!-- 4. Analytics -->
-            <section id="analytics" class="app-section section-fade">
-                <div class="growth-header">
-                    <h2>Your Growth Overview</h2>
-                    <p>Track your productivity, consistency, and focus metrics.</p>
-                </div>
-
-                <div class="growth-grid">
-                    <!-- Ratio Chart -->
-                    <div class="growth-card">
-                        <h3><i class="fa-solid fa-chart-pie" style="color: var(--primary)"></i> Output Ratio</h3>
-                        <p class="settings-desc" style="margin-top:-1rem; margin-bottom:1rem;">Tasks Completed vs Focus Points</p>
-                        <div class="chart-container-circle">
-                            <canvas id="ratioChart"></canvas>
-                            <div class="ratio-overlay">
-                                <span>Ratio</span>
-                                <strong id="ratio-text">0:0</strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Weekly Bar -->
-                    <div class="growth-card">
-                        <h3><i class="fa-solid fa-chart-simple" style="color: var(--success)"></i> Weekly Performance</h3>
-                        <p class="settings-desc" style="margin-top:-1rem; margin-bottom:1rem;">Tasks completed over the last 7 days.</p>
-                        <div class="chart-container">
-                            <canvas id="weeklyChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Monthly Bar -->
-                    <div class="growth-card">
-                        <h3><i class="fa-solid fa-chart-column" style="color: var(--secondary)"></i> Monthly Progress</h3>
-                        <p class="settings-desc" style="margin-top:-1rem; margin-bottom:1rem;">Total productivity compared to last month.</p>
-                        <div class="chart-container">
-                            <canvas id="monthlyChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Activity Streaks -->
-                    <div class="growth-card streak-card">
-                        <h3><i class="fa-solid fa-fire" style="color: #f97316"></i> Consistency Engine</h3>
-                        <p class="settings-desc" style="margin-top:-1rem; margin-bottom:1.5rem;">Daily resets. Maintained by completing tasks or focus sessions.</p>
-                        <div class="streak-grid">
-                            <div class="streak-box">
-                                <i class="fa-solid fa-fire icon-fire"></i>
-                                <div class="streak-val" id="current-streak">0</div>
-                                <div class="streak-label">Daily Streak</div>
-                            </div>
-                            <div class="streak-box">
-                                <i class="fa-solid fa-trophy icon-trophy"></i>
-                                <div class="streak-val" id="best-streak">0</div>
-                                <div class="streak-label">Best Streak</div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="stat-meta">
+              <div class="stat-value" id="stat-completed">0</div>
+              <div class="stat-label">Completed</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fa-solid fa-stopwatch"></i></div>
+            <div class="stat-meta">
+              <div class="stat-value" id="stat-focus">0</div>
+              <div class="stat-label">Focus Sessions</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon amber"><i class="fa-solid fa-fire"></i></div>
+            <div class="stat-meta">
+              <div class="stat-value" id="stat-streak">0</div>
+              <div class="stat-label">Daily Streak</div>
+            </div>
+          </div>
         </div>
-    </main>
 
-    <script>
-        // =========================================
-        // CUSTOM UI TOASTS & MODALS ENGINE
-        // =========================================
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            let icon = 'fa-circle-check';
-            if(type === 'error') icon = 'fa-circle-exclamation';
-            if(type === 'info') icon = 'fa-circle-info';
-            
-            toast.innerHTML = `<i class="fa-solid ${icon}" style="color: var(--${type === 'info' ? 'primary' : type});"></i> <span>${message}</span>`;
-            container.appendChild(toast);
-            
-            requestAnimationFrame(() => { toast.classList.add('show'); });
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 400);
-            }, 3500);
+        <div class="dash-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <h3><i class="fa-solid fa-bolt"></i> Up Next</h3>
+              <span class="panel-tag">Top 5 by priority</span>
+            </div>
+            <ul id="upnext-list" class="upnext-list"></ul>
+            <div class="empty-state" id="upnext-empty">
+              <i class="fa-regular fa-face-smile"></i>
+              <p>Nothing urgent — add a task to get moving.</p>
+            </div>
+          </div>
+
+          <div class="panel streak-panel">
+            <div class="panel-head">
+              <h3><i class="fa-solid fa-fire"></i> Streaks</h3>
+            </div>
+            <div class="streak-row">
+              <div class="streak-block">
+                <div class="streak-num" id="dash-current-streak">0</div>
+                <div class="streak-label">Current streak</div>
+              </div>
+              <div class="streak-divider"></div>
+              <div class="streak-block">
+                <div class="streak-num best" id="dash-best-streak">0</div>
+                <div class="streak-label">Best streak</div>
+              </div>
+            </div>
+            <p class="streak-hint">Complete a task or a focus session to keep it alive. Missing a full day resets your current streak at midnight.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================= TASKS VIEW ========================= -->
+      <section class="view" id="view-tasks">
+        <div class="task-input-row">
+          <input type="text" id="task-input" placeholder="What do you need to get done?" maxlength="140">
+          <select id="task-priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+          <button class="btn btn-primary" id="add-task-btn"><i class="fa-solid fa-plus"></i> Add task</button>
+        </div>
+
+        <div class="task-section">
+          <div class="task-section-head">
+            <h3>Active</h3>
+            <span class="task-count" id="active-count-badge">0</span>
+          </div>
+          <ul id="active-task-list" class="task-list"></ul>
+          <div class="empty-state" id="active-empty">
+            <i class="fa-regular fa-circle-check"></i>
+            <p>No active tasks. Add one above to start your list.</p>
+          </div>
+        </div>
+
+        <div class="task-section">
+          <div class="task-section-head">
+            <h3>Completed</h3>
+            <span class="task-count" id="completed-count-badge">0</span>
+          </div>
+          <ul id="completed-task-list" class="task-list"></ul>
+          <div class="empty-state" id="completed-empty">
+            <i class="fa-regular fa-clock"></i>
+            <p>Completed tasks will show up here.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================= TIMER VIEW ========================= -->
+      <section class="view" id="view-timer">
+        <div class="timer-wrap">
+          <div class="timer-mode-switch">
+            <button class="mode-btn active" data-mode="work">Work · 25m</button>
+            <button class="mode-btn" data-mode="break">Break · 5m</button>
+          </div>
+
+          <div class="timer-ring-wrap" id="timer-ring-wrap">
+            <svg viewBox="0 0 320 320" class="timer-svg">
+              <circle class="ring-track" cx="160" cy="160" r="140"></circle>
+              <circle class="ring-progress" id="ring-progress" cx="160" cy="160" r="140"></circle>
+            </svg>
+            <div class="timer-center">
+              <div class="timer-time" id="timer-display">25:00</div>
+              <div class="timer-mode-label" id="timer-mode-label">Focus session</div>
+            </div>
+          </div>
+
+          <div class="timer-controls">
+            <button class="timer-btn secondary" id="timer-reset-btn" aria-label="Reset timer">
+              <i class="fa-solid fa-rotate-left"></i>
+            </button>
+            <button class="timer-btn primary" id="timer-toggle-btn" aria-label="Play or pause timer">
+              <i class="fa-solid fa-play" id="timer-toggle-icon"></i>
+            </button>
+            <button class="timer-btn secondary" id="timer-skip-btn" aria-label="Skip to next mode">
+              <i class="fa-solid fa-forward"></i>
+            </button>
+          </div>
+
+          <p class="timer-session-count">Sessions completed today: <strong id="timer-session-today">0</strong></p>
+        </div>
+      </section>
+
+      <!-- ========================= ANALYTICS VIEW ========================= -->
+      <section class="view" id="view-analytics">
+        <div class="analytics-grid">
+          <div class="panel chart-panel">
+            <div class="panel-head"><h3><i class="fa-solid fa-chart-pie"></i> Output Ratio</h3></div>
+            <div class="chart-box"><canvas id="chart-doughnut"></canvas></div>
+            <div class="chart-legend-row">
+              <span><i class="dot teal"></i> Completed tasks</span>
+              <span><i class="dot blue"></i> Focus sessions</span>
+            </div>
+          </div>
+
+          <div class="panel chart-panel">
+            <div class="panel-head"><h3><i class="fa-solid fa-calendar-week"></i> Weekly Performance</h3></div>
+            <div class="chart-box"><canvas id="chart-weekly"></canvas></div>
+          </div>
+
+          <div class="panel chart-panel wide">
+            <div class="panel-head"><h3><i class="fa-solid fa-calendar-days"></i> Monthly Progress</h3></div>
+            <div class="chart-box"><canvas id="chart-monthly"></canvas></div>
+          </div>
+
+          <div class="panel streak-panel wide">
+            <div class="panel-head"><h3><i class="fa-solid fa-fire"></i> Daily Streaks</h3></div>
+            <div class="streak-row">
+              <div class="streak-block">
+                <div class="streak-num" id="analytics-current-streak">0</div>
+                <div class="streak-label">Current streak</div>
+              </div>
+              <div class="streak-divider"></div>
+              <div class="streak-block">
+                <div class="streak-num best" id="analytics-best-streak">0</div>
+                <div class="streak-label">Best streak</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ================= MOBILE BOTTOM NAV ================= -->
+  <nav id="mobile-nav">
+    <button class="mnav-item active" data-view="dashboard"><i class="fa-solid fa-grip"></i>Home</button>
+    <button class="mnav-item" data-view="tasks"><i class="fa-solid fa-list-check"></i>Tasks</button>
+    <button class="mnav-item" data-view="timer"><i class="fa-solid fa-stopwatch"></i>Timer</button>
+    <button class="mnav-item" data-view="analytics"><i class="fa-solid fa-chart-line"></i>Growth</button>
+  </nav>
+
+</div>
+
+<!-- ============================================================
+     SETTINGS SIDEBAR
+     ============================================================ -->
+<div id="settings-overlay">
+  <div id="settings-panel">
+    <div class="settings-head">
+      <h2>Settings</h2>
+      <button class="icon-btn" id="close-settings" aria-label="Close settings"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="settings-body">
+
+      <div class="settings-section">
+        <div class="settings-section-title">Update Password</div>
+        <form id="password-form">
+          <div class="field-group">
+            <label for="current-pw">Current password</label>
+            <input type="password" id="current-pw" placeholder="Enter current password" required>
+          </div>
+          <div class="field-group">
+            <label for="new-pw">New password</label>
+            <input type="password" id="new-pw" placeholder="Enter new password" required minlength="4">
+          </div>
+          <div class="field-group">
+            <label for="confirm-pw">Confirm new password</label>
+            <input type="password" id="confirm-pw" placeholder="Re-enter new password" required minlength="4">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Update password</button>
+        </form>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Data Management</div>
+        <div class="export-lock-box" id="export-lock-box">
+          <i class="fa-solid fa-lock"></i>
+          <div class="lock-msg">Monthly report unlocks on <span class="lock-date" id="export-unlock-date">—</span></div>
+        </div>
+        <button class="btn btn-secondary btn-block" id="export-json-btn" disabled>
+          <i class="fa-solid fa-file-export"></i> Export Monthly JSON Report
+        </button>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">About</div>
+        <div class="about-box">
+          <p><strong>Proxima Workspace</strong> — a focused productivity space for tasks, timeboxing, and momentum tracking.</p>
+          <div class="settings-info-row"><span>Version</span><span>1.0.0</span></div>
+          <div class="settings-info-row"><span>Signed in as</span><span id="about-email">—</span></div>
+          <div class="settings-info-row"><span>Storage</span><span>Local device only</span></div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Danger Zone</div>
+        <div class="danger-zone">
+          <p>This permanently deletes every task, focus session, streak, and history entry stored on this device. This cannot be undone.</p>
+          <button class="btn btn-danger btn-block" id="clear-data-btn">
+            <i class="fa-solid fa-trash"></i> Clear all data
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CONFIRMATION MODAL
+     ============================================================ -->
+<div id="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-icon" id="modal-icon"><i class="fa-solid fa-trash"></i></div>
+    <div class="modal-title" id="modal-title">Delete this task?</div>
+    <div class="modal-body" id="modal-body">This action can't be undone.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modal-cancel-btn">Cancel</button>
+      <button class="btn btn-danger" id="modal-confirm-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   PROXIMA WORKSPACE — APPLICATION LOGIC
+   Pure vanilla JS. No frameworks. Heavily commented per spec.
+   ================================================================ */
+(function(){
+  'use strict';
+
+  /* ------------------------------------------------------------
+     0. CONSTANTS & STORAGE KEYS
+     ------------------------------------------------------------ */
+  const LS_KEYS = {
+    AUTH_EMAIL: 'proxima_auth_email',
+    AUTH_HASH: 'proxima_auth_hash',
+    SESSION: 'proxima_session_active',
+    TASKS: 'proxima_tasks',
+    STREAK: 'proxima_streak',        // { current, best, lastActivityDate }
+    DAILY_HISTORY: 'proxima_daily_history', // { 'YYYY-MM-DD': { completedTasks, focusSessions } }
+    FOCUS_TOTAL: 'proxima_focus_total_sessions',
+    THEME: 'proxima_theme',
+    TIMER_SESSIONS_TODAY: 'proxima_timer_sessions_today', // { date, count }
+  };
+
+  const HARDCODED_EMAIL = 'himakirankondasani@gmail.com';
+  // Password is stored/checked as a base64 hash. Default password: 626519369689
+  const DEFAULT_PASSWORD_B64 = btoa('626519369689');
+
+  const WORK_MINUTES = 25;
+  const BREAK_MINUTES = 5;
+  const RING_CIRCUMFERENCE = 2 * Math.PI * 140; // r=140
+
+  /* ------------------------------------------------------------
+     1. UTILITIES
+     ------------------------------------------------------------ */
+  function todayKey(d){
+    const date = d || new Date();
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,'0');
+    const day = String(date.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function readJSON(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      if(raw === null) return fallback;
+      return JSON.parse(raw);
+    }catch(e){ return fallback; }
+  }
+  function writeJSON(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function uid(){
+    return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+  }
+
+  function escapeHTML(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /* ------------------------------------------------------------
+     2. DAILY HISTORY / STREAK ENGINE
+     ------------------------------------------------------------
+     Every completed task or completed focus session adds +1 to
+     the daily history bucket AND to the current streak score.
+     On load and on every activity, we check the last activity
+     date: if it isn't today, the current streak resets to 0
+     (the all-time best streak is always preserved).
+     ------------------------------------------------------------ */
+  function getStreakData(){
+    return readJSON(LS_KEYS.STREAK, { current: 0, best: 0, lastActivityDate: null });
+  }
+  function saveStreakData(data){ writeJSON(LS_KEYS.STREAK, data); }
+
+  function getDailyHistory(){
+    return readJSON(LS_KEYS.DAILY_HISTORY, {});
+  }
+  function saveDailyHistory(hist){ writeJSON(LS_KEYS.DAILY_HISTORY, hist); }
+
+  // Call this on load AND before recording new activity.
+  // If the last recorded activity date isn't "today", zero the current streak.
+  function reconcileStreakForNewDay(){
+    const streak = getStreakData();
+    const today = todayKey();
+    if(streak.lastActivityDate && streak.lastActivityDate !== today){
+      // A new calendar day has begun since the last activity — reset current streak.
+      streak.current = 0;
+      saveStreakData(streak);
+    }
+    return streak;
+  }
+
+  // Records +1 streak point for an activity (completed task or focus session).
+  function recordStreakActivity(){
+    const today = todayKey();
+    let streak = reconcileStreakForNewDay();
+    streak.current += 1;
+    if(streak.current > streak.best){ streak.best = streak.current; }
+    streak.lastActivityDate = today;
+    saveStreakData(streak);
+  }
+
+  function bumpDailyHistory(field){
+    const hist = getDailyHistory();
+    const today = todayKey();
+    if(!hist[today]){ hist[today] = { completedTasks: 0, focusSessions: 0 }; }
+    hist[today][field] = (hist[today][field] || 0) + 1;
+    saveDailyHistory(hist);
+  }
+
+  /* ------------------------------------------------------------
+     3. TASK DATA ENGINE
+     ------------------------------------------------------------ */
+  function getTasks(){ return readJSON(LS_KEYS.TASKS, []); }
+  function saveTasks(tasks){ writeJSON(LS_KEYS.TASKS, tasks); }
+
+  const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
+
+  function addTask(text, priority){
+    const tasks = getTasks();
+    tasks.push({
+      id: uid(),
+      text: text,
+      priority: priority,
+      completed: false,
+      createdAt: new Date().toISOString(),
+      completedAt: null
+    });
+    saveTasks(tasks);
+  }
+
+  function toggleTaskComplete(id){
+    const tasks = getTasks();
+    const t = tasks.find(x => x.id === id);
+    if(!t) return;
+    t.completed = !t.completed;
+    if(t.completed){
+      t.completedAt = new Date().toISOString();
+      bumpDailyHistory('completedTasks');
+      recordStreakActivity();
+    } else {
+      t.completedAt = null;
+    }
+    saveTasks(tasks);
+  }
+
+  function deleteTask(id){
+    let tasks = getTasks();
+    tasks = tasks.filter(x => x.id !== id);
+    saveTasks(tasks);
+  }
+
+  function editTaskText(id, newText){
+    const tasks = getTasks();
+    const t = tasks.find(x => x.id === id);
+    if(!t) return;
+    t.text = newText;
+    saveTasks(tasks);
+  }
+
+  /* ------------------------------------------------------------
+     4. FOCUS SESSION ENGINE
+     ------------------------------------------------------------ */
+  function getFocusTotal(){ return readJSON(LS_KEYS.FOCUS_TOTAL, 0); }
+  function incrementFocusTotal(){
+    const total = getFocusTotal() + 1;
+    writeJSON(LS_KEYS.FOCUS_TOTAL, total);
+    return total;
+  }
+
+  function getTimerSessionsToday(){
+    const data = readJSON(LS_KEYS.TIMER_SESSIONS_TODAY, { date: todayKey(), count: 0 });
+    if(data.date !== todayKey()){ return { date: todayKey(), count: 0 }; }
+    return data;
+  }
+  function incrementTimerSessionsToday(){
+    const data = getTimerSessionsToday();
+    data.count += 1;
+    writeJSON(LS_KEYS.TIMER_SESSIONS_TODAY, data);
+    return data.count;
+  }
+
+  // Call when a full WORK session completes (not breaks).
+  function completeFocusSession(){
+    incrementFocusTotal();
+    incrementTimerSessionsToday();
+    bumpDailyHistory('focusSessions');
+    recordStreakActivity();
+  }
+
+  /* ------------------------------------------------------------
+     5. TOAST NOTIFICATION SYSTEM
+     ------------------------------------------------------------ */
+  const toastContainer = document.getElementById('toast-container');
+  const TOAST_ICONS = {
+    success: 'fa-solid fa-circle-check',
+    error: 'fa-solid fa-circle-xmark',
+    info: 'fa-solid fa-circle-info'
+  };
+
+  function showToast(message, type){
+    type = type || 'info';
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `
+      <span class="t-icon"><i class="${TOAST_ICONS[type]}"></i></span>
+      <span class="t-msg">${escapeHTML(message)}</span>
+      <button class="t-close" aria-label="Dismiss"><i class="fa-solid fa-xmark"></i></button>
+    `;
+    toastContainer.appendChild(el);
+
+    const remove = () => {
+      if(!el.parentNode) return;
+      el.classList.add('leaving');
+      setTimeout(() => el.remove(), 350);
+    };
+
+    el.querySelector('.t-close').addEventListener('click', remove);
+    const timer = setTimeout(remove, 3500);
+    el.addEventListener('mouseenter', () => clearTimeout(timer));
+  }
+
+  /* ------------------------------------------------------------
+     6. CONFIRMATION MODAL SYSTEM
+     ------------------------------------------------------------ */
+  const modalOverlay = document.getElementById('modal-overlay');
+  const modalIcon = document.getElementById('modal-icon');
+  const modalTitle = document.getElementById('modal-title');
+  const modalBody = document.getElementById('modal-body');
+  const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+  const modalCancelBtn = document.getElementById('modal-cancel-btn');
+  let modalConfirmCallback = null;
+
+  function openConfirmModal({ title, body, confirmLabel, iconClass, danger, onConfirm }){
+    modalTitle.textContent = title;
+    modalBody.textContent = body;
+    modalConfirmBtn.textContent = confirmLabel || 'Confirm';
+    modalConfirmBtn.className = danger === false ? 'btn btn-secondary' : 'btn btn-danger';
+    modalIcon.className = danger === false ? 'modal-icon neutral' : 'modal-icon';
+    modalIcon.innerHTML = `<i class="${iconClass || 'fa-solid fa-trash'}"></i>`;
+    modalConfirmCallback = onConfirm;
+    modalOverlay.classList.add('show');
+  }
+  function closeConfirmModal(){
+    modalOverlay.classList.remove('show');
+    modalConfirmCallback = null;
+  }
+  modalCancelBtn.addEventListener('click', closeConfirmModal);
+  modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) closeConfirmModal(); });
+  modalConfirmBtn.addEventListener('click', () => {
+    if(typeof modalConfirmCallback === 'function') modalConfirmCallback();
+    closeConfirmModal();
+  });
+
+  /* ------------------------------------------------------------
+     7. AUTHENTICATION
+     ------------------------------------------------------------ */
+  const loginScreen = document.getElementById('login-screen');
+  const loginForm = document.getElementById('login-form');
+  const loginEmailInput = document.getElementById('login-email');
+  const loginPasswordInput = document.getElementById('login-password');
+  const loginError = document.getElementById('login-error');
+  const loginErrorText = document.getElementById('login-error-text');
+  const appShell = document.getElementById('app-shell');
+  const togglePwBtn = document.getElementById('toggle-pw');
+
+  function ensureAuthDefaults(){
+    if(!localStorage.getItem(LS_KEYS.AUTH_EMAIL)){
+      localStorage.setItem(LS_KEYS.AUTH_EMAIL, HARDCODED_EMAIL);
+    }
+    if(!localStorage.getItem(LS_KEYS.AUTH_HASH)){
+      localStorage.setItem(LS_KEYS.AUTH_HASH, DEFAULT_PASSWORD_B64);
+    }
+  }
+
+  function attemptLogin(email, password){
+    const storedEmail = localStorage.getItem(LS_KEYS.AUTH_EMAIL);
+    const storedHash = localStorage.getItem(LS_KEYS.AUTH_HASH);
+    const inputHash = btoa(password);
+    return (email.trim().toLowerCase() === storedEmail.toLowerCase() && inputHash === storedHash);
+  }
+
+  function showLoginError(msg){
+    loginErrorText.textContent = msg;
+    loginError.classList.remove('hidden');
+  }
+  function hideLoginError(){ loginError.classList.add('hidden'); }
+
+  togglePwBtn.addEventListener('click', () => {
+    const isPw = loginPasswordInput.type === 'password';
+    loginPasswordInput.type = isPw ? 'text' : 'password';
+    togglePwBtn.innerHTML = isPw ? '<i class="fa-regular fa-eye-slash"></i>' : '<i class="fa-regular fa-eye"></i>';
+  });
+
+  loginForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    hideLoginError();
+    const email = loginEmailInput.value;
+    const password = loginPasswordInput.value;
+
+    if(attemptLogin(email, password)){
+      sessionStorage.setItem(LS_KEYS.SESSION, 'true');
+      enterApp();
+    } else {
+      showLoginError('Invalid email or password. Please try again.');
+      loginError.style.animation = 'none';
+      void loginError.offsetWidth; // restart shake
+      loginError.style.animation = '';
+    }
+  });
+
+  function generateBubbles(){
+    const field = document.getElementById('bubble-field');
+    const count = 18;
+    for(let i=0;i<count;i++){
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      const size = 14 + Math.random()*46;
+      b.style.width = size+'px';
+      b.style.height = size+'px';
+      b.style.left = (Math.random()*100)+'%';
+      b.style.setProperty('--drift', (Math.random()*120-60)+'px');
+      const duration = 10 + Math.random()*14;
+      b.style.animationDuration = duration+'s';
+      b.style.animationDelay = (Math.random()*duration)+'s';
+      field.appendChild(b);
+    }
+  }
+
+  function logout(){
+    sessionStorage.removeItem(LS_KEYS.SESSION);
+    appShell.classList.add('app-hidden');
+    loginScreen.classList.remove('hidden');
+    loginForm.reset();
+    hideLoginError();
+  }
+
+  function enterApp(){
+    loginScreen.classList.add('hidden');
+    appShell.classList.remove('app-hidden');
+    document.getElementById('about-email').textContent = localStorage.getItem(LS_KEYS.AUTH_EMAIL);
+    refreshEverything();
+  }
+
+  /* ------------------------------------------------------------
+     8. NAVIGATION (view switching)
+     ------------------------------------------------------------ */
+  const navItems = document.querySelectorAll('.nav-item[data-view]');
+  const mnavItems = document.querySelectorAll('.mnav-item[data-view]');
+  const views = document.querySelectorAll('.view');
+  const topbarTitle = document.getElementById('topbar-title');
+  const topbarSub = document.getElementById('topbar-sub');
+
+  const VIEW_META = {
+    dashboard: { title: 'Dashboard', sub: 'Your day at a glance' },
+    tasks: { title: 'Tasks', sub: 'Plan, track, and complete your work' },
+    timer: { title: 'Focus Timer', sub: 'Deep work, one session at a time' },
+    analytics: { title: 'Growth Analytics', sub: 'Track momentum over time' }
+  };
+
+  function switchView(viewName){
+    views.forEach(v => v.classList.toggle('active', v.id === `view-${viewName}`));
+    navItems.forEach(n => n.classList.toggle('active', n.dataset.view === viewName));
+    mnavItems.forEach(n => n.classList.toggle('active', n.dataset.view === viewName));
+    const meta = VIEW_META[viewName] || { title:'', sub:'' };
+    topbarTitle.textContent = meta.title;
+    topbarSub.textContent = meta.sub;
+
+    if(viewName === 'analytics'){ renderAnalyticsCharts(); }
+    if(viewName === 'dashboard'){ renderDashboard(); }
+    if(viewName === 'tasks'){ renderTasks(); }
+  }
+
+  navItems.forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+  mnavItems.forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+  document.getElementById('nav-logout').addEventListener('click', logout);
+
+  // Topbar logout icon — reachable on every screen size (including
+  // mobile, where the desktop side nav's "Log out" item is hidden).
+  document.getElementById('topbar-logout-btn').addEventListener('click', () => {
+    openConfirmModal({
+      title: 'Log out?',
+      body: "You'll need your email and password to sign back in.",
+      confirmLabel: 'Log out',
+      iconClass: 'fa-solid fa-right-from-bracket',
+      danger: false,
+      onConfirm: logout
+    });
+  });
+
+  /* ------------------------------------------------------------
+     9. THEME (light/dark) WITH WIPE ANIMATION
+     ------------------------------------------------------------ */
+  const themeWipe = document.getElementById('theme-wipe');
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const topbarThemeBtn = document.getElementById('topbar-theme-btn');
+
+  function getStoredTheme(){ return localStorage.getItem(LS_KEYS.THEME) || 'light'; }
+  function applyTheme(theme){
+    if(theme === 'dark'){ document.documentElement.setAttribute('data-theme','dark'); }
+    else{ document.documentElement.removeAttribute('data-theme'); }
+    localStorage.setItem(LS_KEYS.THEME, theme);
+  }
+
+  function toggleTheme(originEvent){
+    const current = getStoredTheme();
+    const next = current === 'dark' ? 'light' : 'dark';
+
+    // Position the wipe circle at the click origin for a natural reveal.
+    let x = '50%', y = '50%';
+    if(originEvent){
+      x = originEvent.clientX + 'px';
+      y = originEvent.clientY + 'px';
+    }
+    themeWipe.style.setProperty('--wipe-x', x);
+    themeWipe.style.setProperty('--wipe-y', y);
+    themeWipe.style.background = next === 'dark' ? '#0b1213' : '#f4f6f6';
+
+    themeWipe.classList.remove('animate');
+    void themeWipe.offsetWidth; // restart animation
+    themeWipe.classList.add('animate');
+
+    // Swap the theme partway through the wipe for a seamless reveal.
+    setTimeout(() => applyTheme(next), 160);
+  }
+
+  themeToggleBtn.addEventListener('click', (e) => toggleTheme(e));
+  topbarThemeBtn.addEventListener('click', (e) => toggleTheme(e));
+
+  /* ------------------------------------------------------------
+     10. SETTINGS SIDEBAR
+     ------------------------------------------------------------ */
+  const settingsOverlay = document.getElementById('settings-overlay');
+  const openSettingsBtn = document.getElementById('open-settings');
+  const closeSettingsBtn = document.getElementById('close-settings');
+
+  function openSettings(){
+    settingsOverlay.classList.add('show');
+    refreshExportLockUI();
+  }
+  function closeSettings(){ settingsOverlay.classList.remove('show'); }
+
+  openSettingsBtn.addEventListener('click', openSettings);
+  closeSettingsBtn.addEventListener('click', closeSettings);
+  settingsOverlay.addEventListener('click', (e) => { if(e.target === settingsOverlay) closeSettings(); });
+
+  // ---- Password update form ----
+  const passwordForm = document.getElementById('password-form');
+  passwordForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const current = document.getElementById('current-pw').value;
+    const next = document.getElementById('new-pw').value;
+    const confirm = document.getElementById('confirm-pw').value;
+
+    const storedHash = localStorage.getItem(LS_KEYS.AUTH_HASH);
+    if(btoa(current) !== storedHash){
+      showToast('Current password is incorrect.', 'error');
+      return;
+    }
+    if(next !== confirm){
+      showToast('New passwords do not match.', 'error');
+      return;
+    }
+    if(next.length < 4){
+      showToast('New password must be at least 4 characters.', 'error');
+      return;
+    }
+    localStorage.setItem(LS_KEYS.AUTH_HASH, btoa(next));
+    showToast('Password updated successfully.', 'success');
+    passwordForm.reset();
+  });
+
+  // ---- Danger zone: clear all data ----
+  document.getElementById('clear-data-btn').addEventListener('click', function(){
+    openConfirmModal({
+      title: 'Clear all data?',
+      body: 'This permanently deletes every task, focus session, streak, and history entry stored on this device. This cannot be undone.',
+      confirmLabel: 'Clear everything',
+      iconClass: 'fa-solid fa-triangle-exclamation',
+      danger: true,
+      onConfirm: () => {
+        const authEmail = localStorage.getItem(LS_KEYS.AUTH_EMAIL);
+        const authHash = localStorage.getItem(LS_KEYS.AUTH_HASH);
+        const theme = localStorage.getItem(LS_KEYS.THEME);
+        localStorage.clear();
+        // Preserve login credentials and theme preference — "all data" refers to app data.
+        if(authEmail) localStorage.setItem(LS_KEYS.AUTH_EMAIL, authEmail);
+        if(authHash) localStorage.setItem(LS_KEYS.AUTH_HASH, authHash);
+        if(theme) localStorage.setItem(LS_KEYS.THEME, theme);
+        refreshEverything();
+        closeSettings();
+        showToast('All data has been cleared.', 'success');
+      }
+    });
+  });
+
+  /* ------------------------------------------------------------
+     11. TASKS VIEW — render + CRUD wiring
+     ------------------------------------------------------------ */
+  const taskInput = document.getElementById('task-input');
+  const taskPrioritySelect = document.getElementById('task-priority');
+  const addTaskBtn = document.getElementById('add-task-btn');
+  const activeTaskList = document.getElementById('active-task-list');
+  const completedTaskList = document.getElementById('completed-task-list');
+  const activeEmpty = document.getElementById('active-empty');
+  const completedEmpty = document.getElementById('completed-empty');
+  const activeCountBadge = document.getElementById('active-count-badge');
+  const completedCountBadge = document.getElementById('completed-count-badge');
+  const tasksNavDot = document.getElementById('tasks-nav-dot');
+
+  function handleAddTask(){
+    const text = taskInput.value.trim();
+    if(!text){
+      showToast('Type something before adding a task.', 'error');
+      return;
+    }
+    addTask(text, taskPrioritySelect.value);
+    taskInput.value = '';
+    taskInput.focus();
+    showToast('Task added.', 'success');
+    renderTasks();
+    renderDashboard();
+  }
+  addTaskBtn.addEventListener('click', handleAddTask);
+  taskInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); handleAddTask(); }
+  });
+
+  function priorityBadgeHTML(priority){
+    const label = priority.charAt(0).toUpperCase() + priority.slice(1);
+    return `<span class="priority-badge ${priority}">${label}</span>`;
+  }
+
+  function buildTaskItemEl(task){
+    const li = document.createElement('li');
+    li.className = 'task-item' + (task.completed ? ' completed' : '');
+    li.dataset.id = task.id;
+
+    li.innerHTML = `
+      <button class="task-checkbox ${task.completed ? 'checked' : ''}" aria-label="Toggle complete">
+        ${task.completed ? '<i class="fa-solid fa-check"></i>' : ''}
+      </button>
+      <span class="task-priority-dot ${task.priority}"></span>
+      <span class="task-text">${escapeHTML(task.text)}</span>
+      ${priorityBadgeHTML(task.priority)}
+      <div class="task-actions">
+        <button class="task-action-btn edit" aria-label="Edit task"><i class="fa-solid fa-pen"></i></button>
+        <button class="task-action-btn delete" aria-label="Delete task"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    `;
+
+    // Toggle complete
+    li.querySelector('.task-checkbox').addEventListener('click', () => {
+      toggleTaskComplete(task.id);
+      renderTasks();
+      renderDashboard();
+      if(!task.completed){ showToast('Task completed. Nice work!', 'success'); }
+    });
+
+    // Delete (with confirm modal)
+    li.querySelector('.task-action-btn.delete').addEventListener('click', () => {
+      openConfirmModal({
+        title: 'Delete this task?',
+        body: `"${task.text}" will be permanently removed.`,
+        confirmLabel: 'Delete',
+        iconClass: 'fa-solid fa-trash',
+        danger: true,
+        onConfirm: () => {
+          li.classList.add('removing');
+          setTimeout(() => {
+            deleteTask(task.id);
+            renderTasks();
+            renderDashboard();
+            showToast('Task deleted.', 'success');
+          }, 320);
         }
+      });
+    });
 
-        let confirmAction = null;
-        function showConfirm(message, onConfirmCallback) {
-            document.getElementById('confirm-msg').innerText = message;
-            document.getElementById('confirm-overlay').classList.add('show');
-            confirmAction = onConfirmCallback;
+    // Inline edit
+    li.querySelector('.task-action-btn.edit').addEventListener('click', () => {
+      startInlineEdit(li, task);
+    });
+
+    return li;
+  }
+
+  function startInlineEdit(li, task){
+    const textSpan = li.querySelector('.task-text');
+    const editBtn = li.querySelector('.task-action-btn.edit');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'task-text-input';
+    input.value = task.text;
+    input.maxLength = 140;
+    textSpan.replaceWith(input);
+    input.focus();
+    input.select();
+
+    editBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+    editBtn.classList.add('save');
+
+    function commit(){
+      const newText = input.value.trim();
+      if(newText){
+        editTaskText(task.id, newText);
+        showToast('Task updated.', 'success');
+      }
+      renderTasks();
+    }
+
+    editBtn.replaceWith(editBtn.cloneNode(true)); // strip old listener
+    const newEditBtn = li.querySelector('.task-action-btn.edit');
+    newEditBtn.addEventListener('click', commit);
+
+    input.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); commit(); }
+      if(e.key === 'Escape'){ renderTasks(); }
+    });
+  }
+
+  function renderTasks(){
+    const tasks = getTasks();
+    const active = tasks.filter(t => !t.completed)
+      .sort((a,b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
+    const completed = tasks.filter(t => t.completed)
+      .sort((a,b) => new Date(b.completedAt) - new Date(a.completedAt));
+
+    activeTaskList.innerHTML = '';
+    active.forEach(t => activeTaskList.appendChild(buildTaskItemEl(t)));
+    completedTaskList.innerHTML = '';
+    completed.forEach(t => completedTaskList.appendChild(buildTaskItemEl(t)));
+
+    activeEmpty.classList.toggle('show', active.length === 0);
+    completedEmpty.classList.toggle('show', completed.length === 0);
+    activeCountBadge.textContent = active.length;
+    completedCountBadge.textContent = completed.length;
+    tasksNavDot.classList.toggle('show', active.length > 0);
+  }
+
+  /* ------------------------------------------------------------
+     12. DASHBOARD VIEW — render
+     ------------------------------------------------------------ */
+  const upnextList = document.getElementById('upnext-list');
+  const upnextEmpty = document.getElementById('upnext-empty');
+
+  function renderDashboard(){
+    const tasks = getTasks();
+    const active = tasks.filter(t => !t.completed);
+    const completed = tasks.filter(t => t.completed);
+    const focusTotal = getFocusTotal();
+    const streak = reconcileStreakForNewDay();
+
+    document.getElementById('stat-remaining').textContent = active.length;
+    document.getElementById('stat-completed').textContent = completed.length;
+    document.getElementById('stat-focus').textContent = focusTotal;
+    document.getElementById('stat-streak').textContent = streak.current;
+
+    document.getElementById('dash-current-streak').textContent = streak.current;
+    document.getElementById('dash-best-streak').textContent = streak.best;
+    document.getElementById('analytics-current-streak').textContent = streak.current;
+    document.getElementById('analytics-best-streak').textContent = streak.best;
+
+    // Up Next: top 5 highest-priority pending tasks
+    const upNext = [...active]
+      .sort((a,b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority] || new Date(a.createdAt) - new Date(b.createdAt))
+      .slice(0,5);
+
+    upnextList.innerHTML = '';
+    upNext.forEach((t, idx) => {
+      const li = document.createElement('li');
+      li.className = `upnext-item priority-${t.priority}`;
+      li.innerHTML = `
+        <span class="upnext-rank">${idx+1}</span>
+        <span class="upnext-text">${escapeHTML(t.text)}</span>
+        ${priorityBadgeHTML(t.priority)}
+      `;
+      upnextList.appendChild(li);
+    });
+    upnextEmpty.classList.toggle('show', upNext.length === 0);
+
+    tasksNavDot.classList.toggle('show', active.length > 0);
+  }
+
+  /* ------------------------------------------------------------
+     13. POMODORO TIMER
+     ------------------------------------------------------------ */
+  const ringProgress = document.getElementById('ring-progress');
+  const timerRingWrap = document.getElementById('timer-ring-wrap');
+  const timerDisplay = document.getElementById('timer-display');
+  const timerModeLabel = document.getElementById('timer-mode-label');
+  const timerToggleBtn = document.getElementById('timer-toggle-btn');
+  const timerToggleIcon = document.getElementById('timer-toggle-icon');
+  const timerResetBtn = document.getElementById('timer-reset-btn');
+  const timerSkipBtn = document.getElementById('timer-skip-btn');
+  const timerSessionTodayEl = document.getElementById('timer-session-today');
+  const modeButtons = document.querySelectorAll('.mode-btn');
+
+  ringProgress.style.strokeDasharray = RING_CIRCUMFERENCE;
+
+  let timerState = {
+    mode: 'work',              // 'work' | 'break'
+    secondsLeft: WORK_MINUTES * 60,
+    totalSeconds: WORK_MINUTES * 60,
+    running: false,
+    intervalId: null
+  };
+
+  function formatTime(totalSeconds){
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+
+  function updateRingVisual(){
+    const fraction = timerState.secondsLeft / timerState.totalSeconds;
+    const offset = RING_CIRCUMFERENCE * (1 - fraction);
+    ringProgress.style.strokeDashoffset = offset;
+  }
+
+  function renderTimer(){
+    timerDisplay.textContent = formatTime(timerState.secondsLeft);
+    timerModeLabel.textContent = timerState.mode === 'work' ? 'Focus session' : 'Break time';
+    timerRingWrap.classList.toggle('break', timerState.mode === 'break');
+    timerRingWrap.classList.toggle('running', timerState.running);
+    timerToggleIcon.className = timerState.running ? 'fa-solid fa-pause' : 'fa-solid fa-play';
+    updateRingVisual();
+    timerSessionTodayEl.textContent = getTimerSessionsToday().count;
+  }
+
+  function setMode(mode){
+    timerState.mode = mode;
+    timerState.totalSeconds = (mode === 'work' ? WORK_MINUTES : BREAK_MINUTES) * 60;
+    timerState.secondsLeft = timerState.totalSeconds;
+    modeButtons.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    renderTimer();
+  }
+
+  function pauseTimer(){
+    timerState.running = false;
+    if(timerState.intervalId){ clearInterval(timerState.intervalId); timerState.intervalId = null; }
+    renderTimer();
+  }
+
+  function startTimer(){
+    timerState.running = true;
+    renderTimer();
+    timerState.intervalId = setInterval(() => {
+      timerState.secondsLeft -= 1;
+      if(timerState.secondsLeft <= 0){
+        handleTimerComplete();
+        return;
+      }
+      renderTimer();
+    }, 1000);
+  }
+
+  function handleTimerComplete(){
+    pauseTimer();
+    const finishedMode = timerState.mode;
+    if(finishedMode === 'work'){
+      completeFocusSession();
+      showToast('Focus session complete! Time for a break.', 'success');
+      renderDashboard();
+      setMode('break');
+    } else {
+      showToast('Break complete! Ready for another session?', 'info');
+      setMode('work');
+    }
+  }
+
+  timerToggleBtn.addEventListener('click', () => {
+    if(timerState.running){ pauseTimer(); }
+    else{ startTimer(); }
+  });
+
+  timerResetBtn.addEventListener('click', () => {
+    pauseTimer();
+    timerState.secondsLeft = timerState.totalSeconds;
+    renderTimer();
+    showToast('Timer reset.', 'info');
+  });
+
+  timerSkipBtn.addEventListener('click', () => {
+    pauseTimer();
+    setMode(timerState.mode === 'work' ? 'break' : 'work');
+  });
+
+  modeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      pauseTimer();
+      setMode(btn.dataset.mode);
+    });
+  });
+
+  /* ------------------------------------------------------------
+     14. GROWTH ANALYTICS — Chart.js integration
+     ------------------------------------------------------------ */
+  let doughnutChart = null, weeklyChart = null, monthlyChart = null;
+
+  function getCSSVar(name){
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function last7DayKeys(){
+    const keys = [];
+    for(let i=6; i>=0; i--){
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      keys.push(todayKey(d));
+    }
+    return keys;
+  }
+
+  function dayLabel(dateKey){
+    const [y,m,d] = dateKey.split('-').map(Number);
+    const date = new Date(y, m-1, d);
+    return date.toLocaleDateString('en-US', { weekday: 'short' });
+  }
+
+  // Monthly progress: sum of (completedTasks + focusSessions) for
+  // "last month" (the prior calendar month) vs "this month" (current calendar month).
+  function getMonthlyTotals(){
+    const hist = getDailyHistory();
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+    let lastMonth = thisMonth - 1;
+    let lastMonthYear = thisYear;
+    if(lastMonth < 0){ lastMonth = 11; lastMonthYear -= 1; }
+
+    let thisMonthTotal = 0, lastMonthTotal = 0;
+    Object.keys(hist).forEach(key => {
+      const [y,m] = key.split('-').map(Number);
+      const entry = hist[key];
+      const sum = (entry.completedTasks||0) + (entry.focusSessions||0);
+      if(y === thisYear && (m-1) === thisMonth){ thisMonthTotal += sum; }
+      else if(y === lastMonthYear && (m-1) === lastMonth){ lastMonthTotal += sum; }
+    });
+    return { lastMonthTotal, thisMonthTotal };
+  }
+
+  function renderAnalyticsCharts(){
+    const tasks = getTasks();
+    const completedCount = tasks.filter(t => t.completed).length;
+    const focusCount = getFocusTotal();
+    const teal = getCSSVar('--color-primary') || '#0d9488';
+    const blue = getCSSVar('--color-secondary') || '#2563eb';
+    const green = getCSSVar('--color-success') || '#10b981';
+    const textColor = getCSSVar('--text-secondary') || '#57696b';
+    const gridColor = getCSSVar('--border-color') || 'rgba(0,0,0,0.08)';
+
+    Chart.defaults.font.family = "'Bricolage Grotesque', system-ui, sans-serif";
+    Chart.defaults.color = textColor;
+
+    // ---- Doughnut: Output Ratio ----
+    const dCtx = document.getElementById('chart-doughnut').getContext('2d');
+    const dData = {
+      labels: ['Completed tasks', 'Focus sessions'],
+      datasets: [{
+        data: [completedCount || 0, focusCount || 0],
+        backgroundColor: [teal, blue],
+        borderWidth: 0,
+        hoverOffset: 6
+      }]
+    };
+    if(doughnutChart){ doughnutChart.data = dData; doughnutChart.update(); }
+    else{
+      doughnutChart = new Chart(dCtx, {
+        type: 'doughnut',
+        data: dData,
+        options: {
+          responsive:true, maintainAspectRatio:false, cutout:'68%',
+          plugins:{ legend:{ display:false } }
         }
-        function closeConfirm() {
-            document.getElementById('confirm-overlay').classList.remove('show');
-            confirmAction = null;
+      });
+    }
+
+    // ---- Bar: Weekly Performance (last 7 days) ----
+    const weekKeys = last7DayKeys();
+    const hist = getDailyHistory();
+    const weekLabels = weekKeys.map(dayLabel);
+    const weekCompleted = weekKeys.map(k => (hist[k] && hist[k].completedTasks) || 0);
+    const weekFocus = weekKeys.map(k => (hist[k] && hist[k].focusSessions) || 0);
+
+    const wCtx = document.getElementById('chart-weekly').getContext('2d');
+    const wData = {
+      labels: weekLabels,
+      datasets: [
+        { label:'Tasks completed', data: weekCompleted, backgroundColor: teal, borderRadius:6, maxBarThickness:22 },
+        { label:'Focus sessions', data: weekFocus, backgroundColor: blue, borderRadius:6, maxBarThickness:22 }
+      ]
+    };
+    if(weeklyChart){ weeklyChart.data = wData; weeklyChart.update(); }
+    else{
+      weeklyChart = new Chart(wCtx, {
+        type:'bar',
+        data: wData,
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, boxHeight:10, usePointStyle:true } } },
+          scales:{
+            x:{ grid:{ display:false } },
+            y:{ beginAtZero:true, ticks:{ precision:0 }, grid:{ color: gridColor } }
+          }
         }
-        function executeConfirm() {
-            if(confirmAction) confirmAction();
-            closeConfirm();
+      });
+    }
+
+    // ---- Bar: Monthly Progress (last month vs this month) ----
+    const { lastMonthTotal, thisMonthTotal } = getMonthlyTotals();
+    const now = new Date();
+    const thisMonthName = now.toLocaleDateString('en-US', { month:'long' });
+    const lastMonthDate = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    const lastMonthName = lastMonthDate.toLocaleDateString('en-US', { month:'long' });
+
+    const mCtx = document.getElementById('chart-monthly').getContext('2d');
+    const mData = {
+      labels: [lastMonthName, thisMonthName],
+      datasets: [{
+        label: 'Growth activity',
+        data: [lastMonthTotal, thisMonthTotal],
+        backgroundColor: [gridColor === 'rgba(0,0,0,0.08)' ? '#cbd5d9' : gridColor, green],
+        borderRadius: 8, maxBarThickness: 60
+      }]
+    };
+    if(monthlyChart){ monthlyChart.data = mData; monthlyChart.update(); }
+    else{
+      monthlyChart = new Chart(mCtx, {
+        type:'bar',
+        data: mData,
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ display:false } },
+          scales:{
+            x:{ grid:{ display:false } },
+            y:{ beginAtZero:true, ticks:{ precision:0 }, grid:{ color: gridColor } }
+          }
         }
+      });
+    }
+  }
 
-        function injectBubbles() {
-            const container = document.getElementById('bubbleSpace');
-            for(let i = 0; i < 20; i++) {
-                const b = document.createElement('div');
-                b.classList.add('bubble');
-                const size = Math.random() * 12 + 4; 
-                b.style.width = `${size}px`; b.style.height = `${size}px`;
-                b.style.left = `${Math.random() * 100}%`;
-                b.style.animationDelay = `${Math.random() * 8}s`;
-                b.style.animationDuration = `${Math.random() * 6 + 8}s`;
-                container.appendChild(b);
-            }
-        }
+  /* ------------------------------------------------------------
+     15. MONTHLY JSON EXPORT — with temporal lock
+     ------------------------------------------------------------
+     The export button is disabled until the absolute last calendar
+     day of the current month. We compute the last day by taking
+     day 0 of *next* month (JS Date rolls back to the last day of
+     the current month).
+     ------------------------------------------------------------ */
+  const exportLockBox = document.getElementById('export-lock-box');
+  const exportUnlockDateEl = document.getElementById('export-unlock-date');
+  const exportJsonBtn = document.getElementById('export-json-btn');
 
-        // Global State & Analytics Engine
-        let tasks = JSON.parse(localStorage.getItem('prox_growth_tasks')) || [];
-        let focusMinutes = parseInt(localStorage.getItem('prox_growth_focus')) || 0;
-        let focusSessions = parseInt(localStorage.getItem('prox_growth_sessions')) || 0;
-        let isDark = localStorage.getItem('prox_theme') === 'dark';
-        
-        let currentStreak = parseInt(localStorage.getItem('prox_current_streak')) || 0;
-        let bestStreak = parseInt(localStorage.getItem('prox_best_streak')) || 0;
-        let lastActiveDate = localStorage.getItem('prox_last_active_date') || null;
+  function getLastDayOfCurrentMonth(){
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + 1, 0); // day 0 of next month = last day of this month
+  }
 
-        let weeklyHistory = JSON.parse(localStorage.getItem('prox_weekly_history')) || [0,0,0,0,0,0];
-        let lastMonthTotal = parseInt(localStorage.getItem('prox_last_month_total')) || 14; 
+  function isTodayLastDayOfMonth(){
+    const now = new Date();
+    const lastDay = getLastDayOfCurrentMonth();
+    return now.getFullYear() === lastDay.getFullYear() &&
+           now.getMonth() === lastDay.getMonth() &&
+           now.getDate() === lastDay.getDate();
+  }
 
-        // Daily Analytics Tracker Mapping Map Date -> { created, completed, sessions }
-        let dailyStats = JSON.parse(localStorage.getItem('prox_daily_stats')) || {};
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            injectBubbles();
-            if (isDark) applyDarkTheme();
-            handleDailyRollover();
-            checkStreakStatusOnLoad();
-            updateStats();
-            renderAllTasks();
-            renderDashboardTasks();
-            initCharts();
-            updateDisplay(); 
-            updateDownloadLock();
-        });
+  function refreshExportLockUI(){
+    const unlocked = isTodayLastDayOfMonth();
+    const lastDay = getLastDayOfCurrentMonth();
+    const formatted = lastDay.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
 
-        // Analytics Tracker Logic
-        function updateDailyStat(key, change) {
-            const todayStr = new Date().toDateString();
-            if (!dailyStats[todayStr]) {
-                dailyStats[todayStr] = { created: 0, completed: 0, sessions: 0 };
-            }
-            dailyStats[todayStr][key] += change;
-            if(dailyStats[todayStr][key] < 0) dailyStats[todayStr][key] = 0;
-            try { localStorage.setItem('prox_daily_stats', JSON.stringify(dailyStats)); } catch(e){}
-        }
+    exportUnlockDateEl.textContent = formatted;
+    exportJsonBtn.disabled = !unlocked;
 
-        function updateDownloadLock() {
-            const now = new Date();
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            const isLastDay = now.getDate() === lastDay.getDate();
-            
-            const dlBtn = document.getElementById('download-btn');
-            const dlInfo = document.getElementById('download-info');
+    if(unlocked){
+      exportLockBox.innerHTML = `
+        <i class="fa-solid fa-lock-open" style="color:var(--color-success)"></i>
+        <div class="lock-msg">Unlocked today — the monthly report is ready to export.</div>
+      `;
+    } else {
+      exportLockBox.innerHTML = `
+        <i class="fa-solid fa-lock"></i>
+        <div class="lock-msg">Report unlocks on <span class="lock-date">${formatted}</span>, the last day of this month.</div>
+      `;
+    }
+  }
 
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const unlockDateStr = lastDay.toLocaleDateString(undefined, options);
+  // Growth Points: 10 per completed task, 25 per focus session.
+  function buildMonthlyReport(){
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth(); // 0-indexed
+    const hist = getDailyHistory();
+    const tasks = getTasks();
+    const streak = getStreakData();
 
-            if (isLastDay) {
-                dlBtn.disabled = false;
-                dlBtn.classList.remove('disabled');
-                dlInfo.innerHTML = `<span style="color: var(--success);"><i class="fa-solid fa-lock-open"></i> Monthly report unlocked. Available today!</span>`;
-            } else {
-                dlBtn.disabled = true;
-                dlBtn.classList.add('disabled');
-                dlInfo.innerHTML = `<span style="color: var(--danger);"><i class="fa-solid fa-lock"></i> Locked. Your monthly data report will be available on <strong>${unlockDateStr}</strong>.</span>`;
-            }
-        }
+    let totalCompletedTasks = 0, totalFocusSessions = 0;
+    const dailyBreakdown = {};
 
-        function downloadData() {
-            const now = new Date();
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            
-            if (now.getDate() !== lastDay.getDate()) {
-                showToast("Data is locked until the last day of the month.", "error");
-                return;
-            }
+    Object.keys(hist).forEach(key => {
+      const [y,m] = key.split('-').map(Number);
+      if(y === year && (m-1) === month){
+        const entry = hist[key];
+        const completedTasks = entry.completedTasks || 0;
+        const focusSessions = entry.focusSessions || 0;
+        totalCompletedTasks += completedTasks;
+        totalFocusSessions += focusSessions;
+        dailyBreakdown[key] = {
+          completedTasks,
+          focusSessions,
+          growthPoints: (completedTasks * 10) + (focusSessions * 25)
+        };
+      }
+    });
 
-            const currentMonthStr = now.toLocaleString('default', { month: 'short', year: 'numeric' });
-            let monthCreated = 0, monthCompleted = 0, monthSessions = 0;
-            
-            Object.keys(dailyStats).forEach(dateStr => {
-                const d = new Date(dateStr);
-                if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
-                    monthCreated += dailyStats[dateStr].created || 0;
-                    monthCompleted += dailyStats[dateStr].completed || 0;
-                    monthSessions += dailyStats[dateStr].sessions || 0;
-                }
-            });
+    const growthPoints = (totalCompletedTasks * 10) + (totalFocusSessions * 25);
 
-            // Point Algorithm (10 pts per task, 25 pts per focus session)
-            const totalPoints = (monthCompleted * 10) + (monthSessions * 25); 
+    return {
+      reportGeneratedAt: now.toISOString(),
+      reportMonth: `${year}-${String(month+1).padStart(2,'0')}`,
+      summary: {
+        totalCompletedTasks,
+        totalFocusSessions,
+        growthPoints,
+        pointsFormula: '10 points per completed task + 25 points per focus session',
+        currentStreak: streak.current,
+        bestStreak: streak.best
+      },
+      dailyBreakdown,
+      allTimeTasksSnapshot: {
+        totalTasks: tasks.length,
+        completedTasks: tasks.filter(t => t.completed).length,
+        pendingTasks: tasks.filter(t => !t.completed).length
+      }
+    };
+  }
 
-            const report = {
-                title: `Proxima Growth Report - ${currentMonthStr}`,
-                generatedAt: now.toISOString(),
-                monthlySummary: {
-                    totalTasksCreated: monthCreated,
-                    totalTasksCompleted: monthCompleted,
-                    totalFocusSessions: monthSessions,
-                    totalGrowthPoints: totalPoints,
-                    completionRate: monthCreated > 0 ? Math.round((monthCompleted / monthCreated) * 100) + '%' : '0%',
-                },
-                streakData: {
-                    bestStreak: bestStreak,
-                    currentStreakEndOfMonth: currentStreak
-                },
-                dailyBreakdown: dailyStats,
-                rawTaskData: tasks 
-            };
+  exportJsonBtn.addEventListener('click', function(){
+    if(exportJsonBtn.disabled) return;
+    const report = buildMonthlyReport();
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `proxima-monthly-report-${report.reportMonth}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Monthly report exported.', 'success');
+  });
 
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report, null, 4));
-            const dlAnchorElem = document.createElement('a'); 
-            dlAnchorElem.setAttribute("href", dataStr); 
-            dlAnchorElem.setAttribute("download", `Proxima_Report_${currentMonthStr.replace(' ', '_')}.json`); 
-            dlAnchorElem.click();
-            
-            showToast("Monthly report exported successfully.", "success");
-        }
+  /* ------------------------------------------------------------
+     16. GLOBAL REFRESH + INITIALIZATION
+     ------------------------------------------------------------ */
+  function refreshEverything(){
+    reconcileStreakForNewDay();
+    renderDashboard();
+    renderTasks();
+    renderTimer();
+    refreshExportLockUI();
+    // Charts only render when Analytics view is opened, to avoid
+    // wasted work and Chart.js sizing issues on hidden canvases.
+  }
 
-        function handleDailyRollover() {
-            const todayStr = new Date().toDateString();
-            let lastRecordedDay = localStorage.getItem('prox_last_recorded_day');
-            
-            if (lastRecordedDay && lastRecordedDay !== todayStr) {
-                const diffTime = Math.abs(new Date(todayStr) - new Date(lastRecordedDay));
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                const tasksOnLastDay = tasks.filter(t => t.completed && t.completedDate === lastRecordedDay).length;
-                weeklyHistory.push(tasksOnLastDay);
-                
-                for(let i=1; i < diffDays; i++) { weeklyHistory.push(0); }
-                weeklyHistory = weeklyHistory.slice(-6);
-                
-                try { localStorage.setItem('prox_weekly_history', JSON.stringify(weeklyHistory)); } catch(e){}
-            }
-            try { localStorage.setItem('prox_last_recorded_day', todayStr); } catch(e){}
-        }
+  function init(){
+    ensureAuthDefaults();
+    applyTheme(getStoredTheme());
+    generateBubbles();
+    setMode('work');
 
-        function getCompletedToday() {
-            const todayStr = new Date().toDateString();
-            return tasks.filter(t => t.completed && t.completedDate === todayStr).length;
-        }
+    // Restore session if one is already active (same-tab reload).
+    if(sessionStorage.getItem(LS_KEYS.SESSION) === 'true'){
+      enterApp();
+    } else {
+      loginScreen.classList.remove('hidden');
+    }
 
-        // Auth Flow
-        function handleLogin(e) {
-            e.preventDefault(); 
-            const emailInput = document.getElementById('logEmail').value;
-            const passInput = document.getElementById('logPass').value;
-            const hashedInput = btoa(passInput);
-            const savedHash = localStorage.getItem('prox_auth_hash') || 'NjI2NTE5MzY5Njg5';
+    // Re-check the streak/day-rollover whenever the tab regains focus,
+    // so a session left open overnight still resets correctly.
+    document.addEventListener('visibilitychange', () => {
+      if(document.visibilityState === 'visible'){
+        reconcileStreakForNewDay();
+        renderDashboard();
+        refreshExportLockUI();
+      }
+    });
+  }
 
-            if (emailInput === 'himakirankondasani@gmail.com' && hashedInput === savedHash) {
-                const overlay = document.getElementById('auth-overlay');
-                overlay.style.opacity = '0';
-                
-                navTo('dashboard');
-                showToast("Welcome back!", "success");
+  init();
 
-                setTimeout(() => overlay.style.display = 'none', 400);
-            } else {
-                showToast('Access Denied: Invalid credentials.', 'error');
-            }
-            document.getElementById('logPass').value = '';
-        }
-
-        function handleLogout() {
-            document.getElementById('logEmail').value = ''; document.getElementById('logPass').value = '';
-            const overlay = document.getElementById('auth-overlay');
-            overlay.style.display = 'flex'; setTimeout(() => overlay.style.opacity = '1', 10);
-            showToast("Successfully logged out.", "info");
-        }
-
-        function toggleSettings() {
-            document.getElementById('settingsSidebar').classList.toggle('open');
-            document.getElementById('settingsBackdrop').classList.toggle('open');
-            if (document.getElementById('settingsSidebar').classList.contains('open')) {
-                updateDownloadLock(); // Refresh lock status accurately when opening settings
-            }
-        }
-        
-        function changePassword(e) {
-            e.preventDefault();
-            const newPass = document.getElementById('new-pass').value;
-            if(newPass.length < 4) return showToast('Password must be at least 4 characters long.', 'error');
-            try { 
-                localStorage.setItem('prox_auth_hash', btoa(newPass)); 
-                showToast('Security password successfully updated!', 'success'); 
-                document.getElementById('pwd-form').reset(); 
-            } catch(e) { 
-                showToast('Error: Could not save password.', 'error'); 
-            }
-        }
-        
-        function clearAllData() {
-            showConfirm("WARNING: This action is irreversible. All tasks, focus statistics, and custom settings will be deleted. Do you want to continue?", () => {
-                localStorage.clear(); 
-                showToast("All data cleared. Reloading...", "info");
-                setTimeout(() => location.reload(), 1500);
-            });
-        }
-
-        // Navigation
-        function navTo(sectionId) {
-            document.querySelectorAll('.app-section').forEach(el => el.classList.remove('active', 'section-fade'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            const target = document.getElementById(sectionId);
-            target.classList.add('active'); setTimeout(() => target.classList.add('section-fade'), 10);
-            
-            const btns = document.querySelectorAll('.nav-btn');
-            btns.forEach(btn => {
-                if (btn.getAttribute('onclick').includes(sectionId)) {
-                    btn.classList.add('active');
-                }
-            });
-
-            const titles = { 'dashboard': 'Dashboard', 'tasks': 'Task Management', 'pomodoro': 'Focus Session', 'analytics': 'Growth Analytics' };
-            document.getElementById('page-title').innerText = titles[sectionId];
-        }
-
-        // Theming
-        function toggleTheme() {
-            const wipe = document.getElementById('theme-wipe');
-            wipe.style.top = '0'; wipe.style.bottom = 'auto'; wipe.classList.add('wipe-down');
-            setTimeout(() => {
-                isDark = !isDark;
-                if (isDark) { applyDarkTheme(); localStorage.setItem('prox_theme', 'dark'); } 
-                else { document.documentElement.removeAttribute('data-theme'); document.getElementById('theme-icon').className = 'fa-solid fa-moon'; localStorage.setItem('prox_theme', 'light'); }
-                updateAllCharts();
-                wipe.style.top = 'auto'; wipe.style.bottom = '0'; wipe.classList.remove('wipe-down');
-            }, 400); 
-        }
-        function applyDarkTheme() { document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('theme-icon').className = 'fa-solid fa-sun'; }
-
-        // Streaks Algorithm Engine
-        function checkStreakStatusOnLoad() {
-            const todayStr = new Date().toDateString();
-            
-            if (lastActiveDate !== todayStr && lastActiveDate !== null) {
-                currentStreak = 0; 
-                lastActiveDate = todayStr;
-                try { 
-                    localStorage.setItem('prox_current_streak', currentStreak); 
-                    localStorage.setItem('prox_last_active_date', lastActiveDate); 
-                } catch(e){}
-            }
-            
-            document.getElementById('current-streak').innerText = currentStreak; 
-            document.getElementById('best-streak').innerText = bestStreak;
-        }
-
-        function registerActivity() {
-            const todayStr = new Date().toDateString();
-            
-            if (lastActiveDate !== todayStr) {
-                currentStreak = 0; 
-                lastActiveDate = todayStr;
-            }
-            
-            currentStreak += 1; 
-            
-            if (currentStreak > bestStreak) { 
-                bestStreak = currentStreak; 
-            }
-            
-            try {
-                localStorage.setItem('prox_last_active_date', lastActiveDate);
-                localStorage.setItem('prox_best_streak', bestStreak);
-                localStorage.setItem('prox_current_streak', currentStreak);
-            } catch(e) {}
-            
-            document.getElementById('current-streak').innerText = currentStreak; 
-            document.getElementById('best-streak').innerText = bestStreak;
-            
-            updateAllCharts(); 
-        }
-
-        // Tasks CRUD
-        function addTask() {
-            const input = document.getElementById('task-input'); const priority = document.getElementById('task-priority').value;
-            const text = input.value.trim(); if (!text) return;
-            const newTask = { id: Date.now(), text, priority, completed: false, completedDate: null };
-            tasks.push(newTask); 
-            updateDailyStat('created', 1);
-            saveData(); input.value = ''; updateStats(); renderDashboardTasks(); sortAndReRenderLater();
-            showToast("Task created successfully.", "success");
-        }
-
-        function createTaskElement(task) {
-            const div = document.createElement('div'); div.className = `crud-task-card ${task.completed ? 'done' : ''}`; div.id = `crud-task-${task.id}`;
-            div.innerHTML = `
-                <div class="crud-task-view" id="view-${task.id}">
-                    <div class="chk-box" onclick="toggleTask(${task.id})" title="Mark Complete"></div>
-                    <div class="crud-task-content">
-                        <span class="crud-task-title">${task.text}</span>
-                        <span class="badge ${task.priority}">${task.priority} Priority</span>
-                    </div>
-                    <div class="crud-actions">
-                        <button class="action-btn edit" onclick="enterEditMode(${task.id})" title="Edit Task"><i class="fa-solid fa-pen"></i></button>
-                        <button class="action-btn delete" onclick="deleteTask(${task.id}, this)" title="Delete Task"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                </div>
-                <div class="crud-task-edit" id="edit-${task.id}">
-                    <input type="text" id="edit-input-${task.id}" value="${task.text}" onkeypress="if(event.key === 'Enter') saveEdit(${task.id})">
-                    <select id="edit-pri-${task.id}">
-                        <option value="low" ${task.priority==='low'?'selected':''}>Low Priority</option>
-                        <option value="medium" ${task.priority==='medium'?'selected':''}>Medium Priority</option>
-                        <option value="high" ${task.priority==='high'?'selected':''}>High Priority</option>
-                    </select>
-                    <div class="edit-controls">
-                        <button class="btn-save" onclick="saveEdit(${task.id})">Save</button>
-                        <button class="btn-cancel" onclick="cancelEdit(${task.id})">Cancel</button>
-                    </div>
-                </div>
-            `; return div;
-        }
-
-        function enterEditMode(id) { document.getElementById(`view-${id}`).style.display = 'none'; document.getElementById(`edit-${id}`).style.display = 'flex'; document.getElementById(`edit-input-${id}`).focus(); }
-        function cancelEdit(id) { document.getElementById(`view-${id}`).style.display = 'flex'; document.getElementById(`edit-${id}`).style.display = 'none'; }
-        
-        function saveEdit(id) {
-            const task = tasks.find(t => t.id === id);
-            if(task) {
-                const newText = document.getElementById(`edit-input-${id}`).value.trim();
-                if(newText) task.text = newText;
-                task.priority = document.getElementById(`edit-pri-${id}`).value;
-                saveData(); renderAllTasks(); renderDashboardTasks();
-                showToast("Task updated.", "success");
-            }
-        }
-
-        function toggleTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if(task) {
-                task.completed = !task.completed;
-                task.completedDate = task.completed ? new Date().toDateString() : null;
-                
-                updateDailyStat('completed', task.completed ? 1 : -1);
-                
-                saveData(); 
-                if (task.completed) registerActivity(); 
-                updateStats(); renderDashboardTasks(); updateAllCharts(); sortAndReRenderLater();
-            }
-        }
-
-        function deleteTask(id, btnElement) {
-            showConfirm("Are you sure you want to delete this task?", () => {
-                const card = btnElement.closest('.crud-task-card'); 
-                card.classList.add('animate-out');
-                setTimeout(() => {
-                    const task = tasks.find(t => t.id === id);
-                    if(task) {
-                        const todayStr = new Date().toDateString();
-                        // accurately remove from todays analytics if deleted today
-                        if(new Date(task.id).toDateString() === todayStr) updateDailyStat('created', -1);
-                        if(task.completed && task.completedDate === todayStr) updateDailyStat('completed', -1);
-                    }
-                    tasks = tasks.filter(t => t.id !== id);
-                    saveData(); updateStats(); renderDashboardTasks(); sortAndReRenderLater(); updateAllCharts();
-                    showToast("Task deleted.", "info");
-                }, 300);
-            });
-        }
-
-        function renderAllTasks() {
-            const pendingList = document.getElementById('pending-tasks-list'); const completedList = document.getElementById('completed-tasks-list');
-            pendingList.innerHTML = ''; completedList.innerHTML = '';
-            let pCount = 0; let cCount = 0;
-            const pVals = { high: 3, medium: 2, low: 1 };
-            const sortedTasks = [...tasks].sort((a, b) => pVals[b.priority] - pVals[a.priority]);
-
-            sortedTasks.forEach(t => {
-                const el = createTaskElement(t);
-                if(t.completed) { completedList.appendChild(el); cCount++; } else { pendingList.appendChild(el); pCount++; }
-            });
-
-            document.getElementById('active-count').innerText = pCount; document.getElementById('completed-count').innerText = cCount;
-            if(pCount === 0) pendingList.innerHTML = '<p style="color: var(--text-muted); padding: 1rem 0;">No active tasks. You are all caught up!</p>';
-            if(cCount === 0) completedList.innerHTML = '<p style="color: var(--text-muted); padding: 1rem 0;">Completed tasks will appear here.</p>';
-        }
-
-        function getDotClass(priority) { if(priority === 'high') return 'dot-high'; if(priority === 'medium') return 'dot-med'; return 'dot-low'; }
-
-        function renderDashboardTasks() {
-            const dashList = document.getElementById('dashboard-task-list'); dashList.innerHTML = '';
-            const pendingTasks = tasks.filter(t => !t.completed).sort((a, b) => { const pVals = { high: 3, medium: 2, low: 1 }; return pVals[b.priority] - pVals[a.priority]; });
-            const nextFive = pendingTasks.slice(0, 5);
-            if (nextFive.length === 0) { dashList.innerHTML = '<p style="color: var(--text-main); font-weight: 600; text-align: center; padding: 2rem 0;">No pending tasks. You are all caught up!</p>'; return; }
-            nextFive.forEach(task => {
-                const row = document.createElement('div'); row.className = 'dash-task-row animate-in';
-                row.innerHTML = `<div class="dash-task-info"><div class="priority-dot ${getDotClass(task.priority)}"></div><span class="task-text">${task.text}</span></div><div class="chk-box" onclick="toggleTask(${task.id})" title="Mark Complete"></div>`;
-                dashList.appendChild(row);
-            });
-        }
-
-        function sortAndReRenderLater() { setTimeout(() => renderAllTasks(), 300); }
-        
-        function saveData() { 
-            try {
-                localStorage.setItem('prox_growth_tasks', JSON.stringify(tasks)); 
-                localStorage.setItem('prox_growth_focus', focusMinutes); 
-                localStorage.setItem('prox_growth_sessions', focusSessions); 
-            } catch (e) { 
-                console.error("Storage limit reached", e); 
-                showToast("Storage Warning: Browser local storage limit reached. Please clear old tasks.", "error"); 
-            }
-        }
-
-        function updateStats() {
-            document.getElementById('stat-pending').innerText = tasks.filter(t => !t.completed).length;
-            document.getElementById('stat-completed').innerText = tasks.filter(t => t.completed).length;
-            document.getElementById('stat-sessions').innerText = focusSessions;
-        }
-
-        // =========================================
-        // POMODORO ENGINE
-        // =========================================
-        let timer; 
-        const WORK_TIME_MS = 25 * 60 * 1000; 
-        const BREAK_TIME_MS = 5 * 60 * 1000;
-        const CIRCUMFERENCE = 753.98; // 2 * Math.PI * 120 (SVG radius)
-        
-        let endTime = 0; 
-        let timeRemainingMs = WORK_TIME_MS; 
-        let isTiming = false; 
-        let isBreakMode = false;
-
-        function updateDisplay() {
-            let totalSeconds = Math.ceil(timeRemainingMs / 1000);
-            const m = String(Math.floor(totalSeconds / 60)).padStart(2, '0'); 
-            const s = String(totalSeconds % 60).padStart(2, '0');
-            
-            const timeDisplay = document.getElementById('time-display');
-            const ring = document.getElementById('pomo-ring-progress');
-            const card = document.getElementById('pomo-card');
-            
-            timeDisplay.innerText = `${m}:${s}`;
-            
-            if(isBreakMode) {
-                card.classList.add('break-mode');
-                document.getElementById('pomo-mode-desc').innerText = 'Recharge Time';
-            } else {
-                card.classList.remove('break-mode');
-                document.getElementById('pomo-mode-desc').innerText = 'Deep Work Session';
-            }
-
-            const totalMs = isBreakMode ? BREAK_TIME_MS : WORK_TIME_MS;
-            const progressRatio = timeRemainingMs / totalMs;
-            const dashOffset = CIRCUMFERENCE - (progressRatio * CIRCUMFERENCE);
-            ring.style.strokeDashoffset = dashOffset;
-        }
-
-        function updateButtonUI() {
-            const icon = document.getElementById('timer-btn-icon');
-            const textLabel = document.getElementById('timer-btn-text');
-            const container = document.getElementById('pomo-ring-container');
-
-            if (isTiming) {
-                icon.className = 'fa-solid fa-pause';
-                textLabel.innerText = 'Pause';
-                
-                if (isBreakMode) {
-                    container.classList.add('timer-active-break');
-                    container.classList.remove('timer-active-work');
-                } else {
-                    container.classList.add('timer-active-work');
-                    container.classList.remove('timer-active-break');
-                }
-            } else {
-                icon.className = 'fa-solid fa-play';
-                textLabel.innerText = 'Start';
-                container.classList.remove('timer-active-work', 'timer-active-break');
-            }
-        }
-
-        function toggleTimer() {
-            if (isTiming) { 
-                clearInterval(timer); 
-                isTiming = false;
-                updateButtonUI();
-            } else { 
-                endTime = Date.now() + timeRemainingMs; 
-                isTiming = true;
-                updateButtonUI();
-                
-                timer = setInterval(() => {
-                    timeRemainingMs = endTime - Date.now();
-                    if (timeRemainingMs <= 0) { 
-                        clearInterval(timer); 
-                        timeRemainingMs = 0; 
-                        handleTimerComplete(); 
-                    }
-                    updateDisplay();
-                }, 250);
-            }
-        }
-        
-        function handleTimerComplete() {
-            if (!isBreakMode) {
-                showToast("Session complete! Excellent focus. Time for a short break.", "success");
-                focusMinutes += 25; 
-                focusSessions += 1;
-                updateDailyStat('sessions', 1);
-                
-                saveData(); updateStats(); registerActivity(); 
-                
-                isBreakMode = true; timeRemainingMs = BREAK_TIME_MS;
-            } else {
-                showToast("Break is over! Ready to focus again?", "info");
-                isBreakMode = false; timeRemainingMs = WORK_TIME_MS;
-            }
-            isTiming = false; 
-            updateDisplay();
-            updateButtonUI();
-        }
-
-        function resetTimer() {
-            clearInterval(timer); 
-            isTiming = false; 
-            isBreakMode = false; 
-            timeRemainingMs = WORK_TIME_MS; 
-            
-            updateDisplay();
-            updateButtonUI();
-        }
-
-        // Charts Engine
-        let ratioChart, weeklyChart, monthlyChart;
-
-        function initCharts() {
-            const font = "'Bricolage Grotesque', sans-serif";
-            const textColor = isDark ? '#f8fafc' : '#0f172a';
-            const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-
-            const ctxRatio = document.getElementById('ratioChart').getContext('2d');
-            ratioChart = new Chart(ctxRatio, {
-                type: 'doughnut',
-                data: { labels: ['Tasks Completed', 'Focus Sessions'], datasets: [{ data: [tasks.filter(t=>t.completed).length, focusSessions], backgroundColor: ['#10b981', '#f59e0b'], borderWidth: 0, hoverOffset: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false }, tooltip: { bodyFont: { family: font } } } }
-            });
-
-            const ctxWeekly = document.getElementById('weeklyChart').getContext('2d');
-            weeklyChart = new Chart(ctxWeekly, {
-                type: 'bar',
-                data: { labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Today'], datasets: [{ label: 'Tasks Completed', data: [...weeklyHistory, getCompletedToday()], backgroundColor: '#0d9488', borderRadius: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, font: { family: font } } }, x: { grid: { display: false }, ticks: { color: textColor, font: { family: font } } } }, plugins: { legend: { display: false } } }
-            });
-
-            const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
-            let thisMonthTotal = weeklyHistory.reduce((a, b) => a + b, 0) + getCompletedToday(); 
-            monthlyChart = new Chart(ctxMonthly, {
-                type: 'bar',
-                data: { labels: ['Last Month', 'This Month'], datasets: [{ data: [lastMonthTotal, thisMonthTotal], backgroundColor: ['#64748b', '#2563eb'], borderRadius: 6, barThickness: 40 }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, font: { family: font } } }, x: { grid: { display: false }, ticks: { color: textColor, font: { family: font } } } }, plugins: { legend: { display: false } } }
-            });
-            updateRatioText();
-        }
-
-        function updateAllCharts() {
-            if (!ratioChart || !weeklyChart || !monthlyChart) return;
-            const textColor = isDark ? '#f8fafc' : '#0f172a'; const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-            const totalCompleted = tasks.filter(t=>t.completed).length; const completedToday = getCompletedToday();
-
-            ratioChart.data.datasets[0].data = [totalCompleted, focusSessions]; ratioChart.update(); updateRatioText();
-
-            weeklyChart.options.scales.x.ticks.color = textColor; weeklyChart.options.scales.y.ticks.color = textColor; weeklyChart.options.scales.y.grid.color = gridColor;
-            weeklyChart.data.datasets[0].data[6] = completedToday; weeklyChart.update();
-
-            let thisMonthTotal = weeklyHistory.reduce((a, b) => a + b, 0) + completedToday;
-            monthlyChart.options.scales.x.ticks.color = textColor; monthlyChart.options.scales.y.ticks.color = textColor; monthlyChart.options.scales.y.grid.color = gridColor;
-            monthlyChart.data.datasets[0].data[1] = thisMonthTotal; monthlyChart.update();
-        }
-
-        function updateRatioText() {
-            const completed = tasks.filter(t=>t.completed).length; const focus = focusSessions;
-            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b); const divisor = gcd(completed, focus);
-            let text = "0:0";
-            if (completed === 0 && focus === 0) text = "0:0"; else if (divisor === 0) text = `${completed}:${focus}`; else text = `${completed/divisor}:${focus/divisor}`;
-            document.getElementById('ratio-text').innerText = text;
-        }
-
-    </script>
+})();
+</script>
 </body>
 </html>
